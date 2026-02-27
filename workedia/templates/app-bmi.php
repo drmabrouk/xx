@@ -7,33 +7,35 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1100px; margin: 0 auto;">
         <!-- Left: Calculator -->
-        <div style="background: #fff; border-radius: 24px; padding: 30px; border: 1px solid var(--workedia-border-color); box-shadow: var(--workedia-shadow);">
+        <div style="background: #fff; border-radius: 20px; padding: 25px; border: 1px solid var(--workedia-border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.02); align-self: start;">
             <form id="bmi-form">
-                <div class="workedia-form-group">
-                    <label class="workedia-label">نظام القياس:</label>
-                    <select id="bmi-unit-system" class="workedia-select" onchange="toggleBMISystem()">
+                <div class="workedia-form-group" style="margin-bottom: 15px;">
+                    <label class="workedia-label" style="font-size: 12px;">نظام القياس:</label>
+                    <select id="bmi-unit-system" class="workedia-select" onchange="toggleBMISystem()" style="height: 40px; font-size: 13px;">
                         <option value="metric">متري (كجم / سم)</option>
                         <option value="imperial">إمبراطوري (رطل / بوصة)</option>
                     </select>
                 </div>
-                <div class="workedia-form-group">
-                    <label class="workedia-label" id="label-weight">الوزن (كجم):</label>
-                    <input type="number" id="bmi-weight" class="workedia-input" step="0.1" required oninput="calculateBMI()">
-                </div>
-                <div class="workedia-form-group">
-                    <label class="workedia-label" id="label-height">الطول (سم):</label>
-                    <input type="number" id="bmi-height" class="workedia-input" step="0.1" required oninput="calculateBMI()">
-                </div>
-
-                <div id="bmi-result-box" style="margin-top: 30px; padding: 25px; border-radius: 20px; text-align: center; background: #f8fafc; border: 1px solid #edf2f7; transition: 0.3s;">
-                    <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">مؤشر كتلة جسمك هو:</div>
-                    <div id="bmi-value" style="font-size: 3em; font-weight: 800; color: var(--workedia-dark-color);">0.0</div>
-                    <div id="bmi-status" style="font-size: 1.1em; font-weight: 700; margin-top: 10px; color: #94a3b8;">---</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="workedia-form-group">
+                        <label class="workedia-label" id="label-weight" style="font-size: 12px;">الوزن (كجم):</label>
+                        <input type="number" id="bmi-weight" class="workedia-input" step="0.1" required oninput="calculateBMI()" style="height: 40px;">
+                    </div>
+                    <div class="workedia-form-group">
+                        <label class="workedia-label" id="label-height" style="font-size: 12px;">الطول (سم):</label>
+                        <input type="number" id="bmi-height" class="workedia-input" step="0.1" required oninput="calculateBMI()" style="height: 40px;">
+                    </div>
                 </div>
 
-                <button type="submit" class="workedia-btn" style="width: 100%; margin-top: 25px; height: 50px; font-weight: 800;">حفظ في السجل</button>
+                <div id="bmi-result-box" style="margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; background: #fcfcfc; border: 1px solid #f1f5f9; transition: 0.3s; position: relative; overflow: hidden;">
+                    <div style="font-size: 12px; color: #94a3b8; font-weight: 600; margin-bottom: 2px;">مؤشر كتلة الجسم</div>
+                    <div id="bmi-value" style="font-size: 2.8em; font-weight: 900; color: var(--workedia-dark-color); line-height: 1;">0.0</div>
+                    <div id="bmi-status" style="font-size: 13px; font-weight: 800; margin-top: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">---</div>
+                </div>
+
+                <button type="submit" class="workedia-btn" style="width: 100%; margin-top: 20px; height: 45px; font-weight: 800; font-size: 14px;">حفظ القياس</button>
             </form>
         </div>
 
@@ -47,10 +49,12 @@
                 ?>
             </div>
 
-            <div style="margin-top: 40px;">
-                <h4 style="margin: 0 0 15px 0;">نصيحة صحية</h4>
-                <div id="bmi-tip" style="padding: 20px; background: var(--workedia-pastel-pink); border-radius: 15px; color: var(--workedia-primary-color); font-size: 14px; line-height: 1.6;">
-                    أدخل بياناتك للحصول على نصيحة مخصصة بناءً على مؤشر كتلة جسمك.
+            <div style="margin-top: 30px; background: #fafafa; border-radius: 20px; padding: 25px; border: 1px solid #f1f5f9;">
+                <h4 style="margin: 0 0 15px 0; color: var(--workedia-dark-color); font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <span class="dashicons dashicons-heart" style="color: var(--workedia-primary-color);"></span> الإرشادات الصحية المخصصة
+                </h4>
+                <div id="bmi-tip" style="color: #4a5568; font-size: 14px; line-height: 1.7;">
+                    <div style="text-align: center; color: #94a3b8; padding: 10px;">أدخل وزنك وطولك الآن للحصول على تقييم صحي دقيق وإرشادات مخصصة لحالتك.</div>
                 </div>
             </div>
         </div>
@@ -83,25 +87,54 @@ function calculateBMI() {
     let color = '';
     let tip = '';
 
+    const tips = {
+        underweight: [
+            'ركز على تناول وجبات غنية بالسعرات الحرارية والمغذيات.',
+            'أضف البروتينات الصحية مثل اللحوم، البيض، والبقوليات.',
+            'مارس تمارين القوة لبناء الكتلة العضلية.',
+            'استشر أخصائي تغذية لاستبعاد أي أسباب طبية.'
+        ],
+        normal: [
+            'حافظ على نمط حياتك المتوازن الحالي.',
+            'استمر في ممارسة النشاط البدني لمدة 150 دقيقة أسبوعياً.',
+            'تنوع في تناول الخضروات والفواكه الطازجة.',
+            'اشرب كميات كافية من الماء (2-3 لتر يومياً).'
+        ],
+        overweight: [
+            'قلل من تناول السكريات والكربوهيدرات المكررة.',
+            'زد من وتيرة التمارين الهوائية (المشي السريع، السباحة).',
+            'راقب حجم الحصص الغذائية في وجباتك.',
+            'حاول استبدال الوجبات السريعة بخيارات منزلية صحية.'
+        ],
+        obese: [
+            'ننصح بزيارة الطبيب لعمل الفحوصات الدورية الشاملة.',
+            'ضع أهدافاً صغيرة وواقعية لخفض الوزن تدريجياً.',
+            'تجنب المشروبات الغازية والعصائر المحلاة تماماً.',
+            'النوم الكافي يساعد في تنظيم عمليات الحرق في الجسم.'
+        ]
+    };
+
+    let tipItems = [];
     if (bmi < 18.5) {
         status = 'نقص في الوزن';
         color = '#3182ce';
-        tip = 'وزنك أقل من الطبيعي. يرجى مراجعة اخصائي تغذية للتأكد من حصولك على العناصر الغذائية الكافية.';
+        tipItems = tips.underweight;
     } else if (bmi < 25) {
         status = 'وزن مثالي';
         color = '#38a169';
-        tip = 'أنت في النطاق الصحي المثالي! استمر في الحفاظ على نمط حياتك المتوازن.';
+        tipItems = tips.normal;
     } else if (bmi < 30) {
         status = 'زيادة في الوزن';
         color = '#d69e2e';
-        tip = 'لديك زيادة بسيطة في الوزن. ينصح بزيادة النشاط البدني ومراقبة السعرات الحرارية.';
+        tipItems = tips.overweight;
     } else {
         status = 'سمنة مفرطة';
         color = '#e53e3e';
-        tip = 'أنت في نطاق السمنة، مما قد يزيد من مخاطر الأمراض المزمنة. ننصح باستشارة طبيب لوضع خطة صحية.';
+        tipItems = tips.obese;
     }
 
     statusEl.innerText = status;
+    tipEl.innerHTML = `<ul style="margin: 15px 0 0 0; padding-right: 20px; list-style-type: disc;">${tipItems.map(t => `<li style="margin-bottom:8px;">${t}</li>`).join('')}</ul>`;
     statusEl.style.color = color;
     valueEl.style.color = color;
     boxEl.style.borderColor = color;

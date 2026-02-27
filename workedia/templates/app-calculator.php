@@ -128,8 +128,10 @@ function calcAction(type, val) {
         calcState.display = calcState.display.slice(0, -1) || '0';
     } else if (type === 'equals') {
         try {
-            const finalExpr = calcState.expression + calcState.display;
-            const result = eval(finalExpr.replace('×', '*').replace('÷', '/'));
+            const finalExpr = (calcState.expression + calcState.display).replace('×', '*').replace('÷', '/');
+            // Safer evaluation replacement for simple math
+            const sanitizedExpr = finalExpr.replace(/[^-()\d/*+.]/g, '');
+            const result = Function('"use strict";return (' + sanitizedExpr + ')')();
             addToHistory(finalExpr + ' = ' + result);
             calcState.display = result.toString();
             calcState.expression = '';
