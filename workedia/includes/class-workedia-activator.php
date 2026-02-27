@@ -305,6 +305,36 @@ class Workedia_Activator {
             KEY user_id (user_id)
         ) $charset_collate;\n";
 
+        // CV Builder Tables
+        $table_name = $wpdb->prefix . 'workedia_cvs';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255) NOT NULL,
+            language enum('ar', 'en') DEFAULT 'ar',
+            template varchar(50) DEFAULT 'modern',
+            content longtext NOT NULL,
+            settings longtext,
+            public_token varchar(100),
+            is_public tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            UNIQUE KEY public_token (public_token)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_cv_versions';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            cv_id mediumint(9) NOT NULL,
+            content longtext NOT NULL,
+            version_label varchar(100),
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY cv_id (cv_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
@@ -564,6 +594,11 @@ class Workedia_Activator {
                 'title' => 'إنشاء حساب جديد',
                 'content' => '[workedia_register]',
                 'shortcode' => 'workedia_register'
+            ),
+            'cv' => array(
+                'title' => 'عرض السيرة الذاتية',
+                'content' => '[workedia_cv_view]',
+                'shortcode' => 'workedia_cv_view'
             )
         );
 

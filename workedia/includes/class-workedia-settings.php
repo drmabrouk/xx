@@ -34,7 +34,8 @@ class Workedia_Settings {
             'tab_calculator' => 'الحاسبة المتطورة',
             'tab_form_builder' => 'منشئ النماذج',
             'tab_bmi' => 'حاسبة BMI',
-            'tab_documents' => 'أرشيف الوثائق'
+            'tab_documents' => 'أرشيف الوثائق',
+            'tab_cv_builder' => 'منشئ السيرة الذاتية'
         );
         return wp_parse_args(get_option('workedia_labels', array()), $default);
     }

@@ -91,6 +91,7 @@ class Workedia_Public {
         add_shortcode('workedia_contact', array($this, 'shortcode_contact'));
         add_shortcode('workedia_blog', array($this, 'shortcode_blog'));
         add_shortcode('workedia_form_view', array($this, 'shortcode_form_view'));
+        add_shortcode('workedia_cv_view', array($this, 'shortcode_cv_view'));
 
         // Backward Compatibility Mapping
         add_shortcode('sm_login', array($this, 'shortcode_login'));
@@ -250,6 +251,12 @@ class Workedia_Public {
     public function shortcode_form_view() {
         ob_start();
         include WORKEDIA_PLUGIN_DIR . 'public/form-view.php';
+        return ob_get_clean();
+    }
+
+    public function shortcode_cv_view() {
+        ob_start();
+        include WORKEDIA_PLUGIN_DIR . 'templates/cv-public-view.php';
         return ob_get_clean();
     }
 
@@ -2064,6 +2071,31 @@ class Workedia_Public {
         $docs = Workedia_Documents::get_documents(get_current_user_id(), $args);
         include WORKEDIA_PLUGIN_DIR . 'templates/app-document-archive-list.php';
         wp_die();
+    }
+
+    // CV Builder AJAX Handlers
+    public function ajax_save_cv() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        $id = Workedia_CVBuilder::save_cv($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save CV');
+    }
+
+    public function ajax_delete_cv() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        if (Workedia_CVBuilder::delete_cv($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete CV');
+    }
+
+    public function ajax_get_cv_versions() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        wp_send_json_success(Workedia_CVBuilder::get_versions($_POST['id']));
+    }
+
+    public function ajax_restore_cv_version() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        if (Workedia_CVBuilder::restore_version($_POST['version_id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to restore version');
     }
 
     public function inject_global_alerts() {
