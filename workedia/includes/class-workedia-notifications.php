@@ -178,6 +178,7 @@ class Workedia_Notifications {
         $user = get_userdata($user_id);
         if (!$user) return [];
 
+        $dismissed = get_user_meta($user_id, 'workedia_dismissed_notifications', true) ?: [];
         $is_admin = in_array('administrator', $user->roles);
 
         // 1. Unread Messages
@@ -187,6 +188,7 @@ class Workedia_Notifications {
         ));
         if ($unread_msgs_count > 0) {
             $notifs[] = [
+                'id' => 'msgs_unread',
                 'text' => "لديك $unread_msgs_count رسائل جديدة غير مقروءة",
                 'type' => 'messaging',
                 'color' => '#3182ce',
@@ -196,10 +198,11 @@ class Workedia_Notifications {
         }
 
         // 2. Form Submissions (for admins)
-        if ($is_admin) {
+        if ($is_admin && !in_array('forms_recent', $dismissed)) {
             $recent_subs = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}workedia_form_submissions WHERE submitted_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
             if ($recent_subs > 0) {
                 $notifs[] = [
+                    'id' => 'forms_recent',
                     'text' => "تم استلام $recent_subs ردود جديدة على النماذج اليوم",
                     'type' => 'form',
                     'color' => '#38a169',
@@ -215,7 +218,9 @@ class Workedia_Notifications {
             $user_id
         ));
         foreach($tasks_due as $t) {
+            if (in_array('task_due_' . $t->id, $dismissed)) continue;
             $notifs[] = [
+                'id' => 'task_due_' . $t->id,
                 'text' => 'مهمة عاجلة: ' . $t->title,
                 'type' => 'task',
                 'color' => '#e53e3e',
@@ -225,26 +230,50 @@ class Workedia_Notifications {
         }
 
         // 4. Membership Warnings
-        $member = $wpdb->get_row($wpdb->prepare("SELECT last_paid_membership_year FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
-        if ($member && $member->last_paid_membership_year < date('Y')) {
-            $notifs[] = [
-                'text' => 'يوجد متأخرات في تجديد العضوية السنوية',
-                'type' => 'warning',
-                'color' => '#d69e2e',
-                'icon' => 'dashicons-warning',
-                'link' => add_query_arg('workedia_tab', 'my-profile', '#')
-            ];
+        if (!in_array('membership_warning', $dismissed)) {
+            $member = $wpdb->get_row($wpdb->prepare("SELECT last_paid_membership_year FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
+            if ($member && isset($member->last_paid_membership_year) && $member->last_paid_membership_year < date('Y')) {
+                $notifs[] = [
+                    'id' => 'membership_warning',
+                    'text' => 'يوجد متأخرات في تجديد العضوية السنوية',
+                    'type' => 'warning',
+                    'color' => '#d69e2e',
+                    'icon' => 'dashicons-warning',
+                    'link' => add_query_arg('workedia_tab', 'my-profile', '#')
+                ];
+            }
         }
 
         // 5. System Alerts (Unacknowledged)
         $sys_alerts = Workedia_DB::get_active_alerts_for_user($user_id);
         foreach($sys_alerts as $sa) {
             $notifs[] = [
+                'id' => 'sys_alert_' . $sa->id,
                 'text' => $sa->title,
                 'type' => 'system',
                 'color' => 'var(--workedia-primary-color)',
                 'icon' => 'dashicons-megaphone',
-                'link' => '#'
+                'link' => '#',
+                'alert_id' => $sa->id
+            ];
+        }
+
+        // 6. Shared Notes
+        $shared_notes = $wpdb->get_results($wpdb->prepare(
+            "SELECT n.id, n.title FROM {$wpdb->prefix}workedia_notes n
+             JOIN {$wpdb->prefix}workedia_note_shares s ON n.id = s.note_id
+             WHERE s.user_id = %d AND n.updated_at > DATE_SUB(NOW(), INTERVAL 3 DAY)",
+            $user_id
+        ));
+        foreach($shared_notes as $sn) {
+            if (in_array('note_shared_' . $sn->id, $dismissed)) continue;
+            $notifs[] = [
+                'id' => 'note_shared_' . $sn->id,
+                'text' => 'تمت مشاركة ملاحظة معك: ' . ($sn->title ?: 'بدون عنوان'),
+                'type' => 'notebook',
+                'color' => '#805ad5',
+                'icon' => 'dashicons-sticky',
+                'link' => add_query_arg('workedia_tab', 'notebook', '#')
             ];
         }
 
