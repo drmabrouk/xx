@@ -21,6 +21,7 @@ class Workedia {
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-notifications.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-notebook.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-tasklist.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-formbuilder.php';
         require_once WORKEDIA_PLUGIN_DIR . 'admin/class-workedia-admin.php';
         require_once WORKEDIA_PLUGIN_DIR . 'public/class-workedia-public.php';
         $this->loader = new Workedia_Loader();
@@ -70,6 +71,13 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_add_subtask', $plugin_public, 'ajax_add_subtask');
         $this->loader->add_action('wp_ajax_workedia_toggle_subtask', $plugin_public, 'ajax_toggle_subtask');
         $this->loader->add_action('wp_ajax_workedia_update_task_order', $plugin_public, 'ajax_update_task_order');
+
+        // Form Builder AJAX
+        $this->loader->add_action('wp_ajax_workedia_save_form', $plugin_public, 'ajax_save_form');
+        $this->loader->add_action('wp_ajax_workedia_delete_form', $plugin_public, 'ajax_delete_form');
+        $this->loader->add_action('wp_ajax_workedia_get_submissions', $plugin_public, 'ajax_get_submissions');
+        $this->loader->add_action('wp_ajax_workedia_submit_public_form', $plugin_public, 'ajax_submit_public_form');
+        $this->loader->add_action('wp_ajax_nopriv_workedia_submit_public_form', $plugin_public, 'ajax_submit_public_form');
 
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');

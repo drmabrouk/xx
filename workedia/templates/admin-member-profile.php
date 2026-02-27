@@ -236,6 +236,17 @@ window.workediaEditMember = function(s) {
 
 document.getElementById('edit-member-form').onsubmit = function(e) {
     e.preventDefault();
+
+    // Permission Check: Members can only update their own profile
+    const memberId = this.elements['member_id'].value;
+    const currentMemberId = <?php echo $member_id; ?>;
+    const isSubscriber = <?php echo $is_subscriber ? 'true' : 'false'; ?>;
+
+    if (isSubscriber && memberId != currentMemberId) {
+        alert('Unauthorized: You can only update your own profile.');
+        return;
+    }
+
     const formData = new FormData(this);
     formData.append('action', 'workedia_update_member_ajax');
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })

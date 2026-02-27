@@ -15,7 +15,7 @@
             const borderColor = isError ? '#E53E3E' : '#38A169';
             const textColor = isError ? '#C53030' : '#276749';
 
-            toast.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:${bgColor}; color:${textColor}; padding:12px 30px; border-radius:50px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:10001; display:flex; align-items:center; gap:12px; border:2px solid ${borderColor}; font-weight:700; font-size:14px; animation: workediaSlideUp 0.4s ease;`;
+            toast.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:${bgColor}; color:${textColor}; padding:12px 30px; border-radius:50px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:10001; display:flex; align-items:center; gap:12px; border:2px solid ${borderColor}; font-weight:700; font-size:14px; animation: workediaToastSlideUp 0.4s ease;`;
             toast.innerHTML = `<span style="font-size:18px;">${isError ? '✕' : '✓'}</span> <span>${message}</span>`;
             document.body.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.5s'; setTimeout(() => toast.remove(), 500); }, 3500);
@@ -374,7 +374,7 @@ if ($member_mode) {
     }
 }
 
-if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator'])) {
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder'])) {
     $active_tab = 'app-launcher';
 }
 
@@ -574,6 +574,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <a href="<?php echo add_query_arg('workedia_tab', 'calculator'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-calculator"></span> <?php echo $labels['tab_calculator']; ?></a>
                     </li>
 
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'form-builder' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'form-builder'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-forms"></span> <?php echo $labels['tab_form_builder']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -601,9 +605,9 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         <div class="workedia-main-panel" style="<?php echo $member_mode ? 'max-width:1300px; width:100%;' : 'flex: 1; min-width: 0;'; ?> padding: 40px; background: <?php echo $member_mode ? 'transparent' : '#fff'; ?>;">
 
             <?php if ($member_mode && $active_tab !== 'app-launcher'): ?>
-                <div style="margin-bottom: 25px;">
-                    <a href="<?php echo add_query_arg('workedia_tab', 'app-launcher'); ?>" class="workedia-btn workedia-btn-outline" style="width:auto; background:white; font-weight:700;">
-                        <span class="dashicons dashicons-arrow-right-alt"></span> العودة للرئيسية
+                <div style="margin-bottom: 30px; display: flex; justify-content: flex-start;">
+                    <a href="<?php echo add_query_arg('workedia_tab', 'app-launcher'); ?>" class="workedia-btn workedia-btn-outline" style="width:auto; background:white; font-weight:800; border-radius: 50px; padding: 10px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; text-decoration: none !important;">
+                        <span class="dashicons dashicons-arrow-right-alt" style="margin-left: 8px;"></span> العودة للرئيسية
                     </a>
                 </div>
             <?php endif; ?>
@@ -638,6 +642,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'calculator':
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-calculator.php';
+                    break;
+
+                case 'form-builder':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-form-builder.php';
                     break;
 
 

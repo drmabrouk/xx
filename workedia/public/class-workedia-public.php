@@ -90,6 +90,7 @@ class Workedia_Public {
         add_shortcode('workedia_about', array($this, 'shortcode_about'));
         add_shortcode('workedia_contact', array($this, 'shortcode_contact'));
         add_shortcode('workedia_blog', array($this, 'shortcode_blog'));
+        add_shortcode('workedia_form_view', array($this, 'shortcode_form_view'));
 
         // Backward Compatibility Mapping
         add_shortcode('sm_login', array($this, 'shortcode_login'));
@@ -243,6 +244,12 @@ class Workedia_Public {
             </div>
         </div>
         <?php
+        return ob_get_clean();
+    }
+
+    public function shortcode_form_view() {
+        ob_start();
+        include WORKEDIA_PLUGIN_DIR . 'public/form-view.php';
         return ob_get_clean();
     }
 
@@ -935,7 +942,7 @@ class Workedia_Public {
     }
 
     public function ajax_update_member() {
-        if (!current_user_can('manage_options')) wp_send_json_error('Unauthorized');
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
         check_ajax_referer('workedia_add_member', 'workedia_nonce');
 
         $member_id = intval($_POST['member_id']);
@@ -1960,6 +1967,35 @@ class Workedia_Public {
         $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
         include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
         wp_die();
+    }
+
+    // Form Builder AJAX Handlers
+    public function ajax_save_form() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_formbuilder_action', 'nonce');
+        $id = Workedia_FormBuilder::save_form($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save form');
+    }
+
+    public function ajax_delete_form() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_formbuilder_action', 'nonce');
+        if (Workedia_FormBuilder::delete_form($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete form');
+    }
+
+    public function ajax_get_submissions() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_formbuilder_action', 'nonce');
+        wp_send_json_success(Workedia_FormBuilder::get_submissions($_POST['id']));
+    }
+
+    public function ajax_submit_public_form() {
+        $form_id = intval($_POST['form_id']);
+        $data = stripslashes($_POST['submission'] ?? '[]');
+        if (Workedia_FormBuilder::submit_form($form_id, json_decode($data, true))) wp_send_json_success('تم إرسال ردك بنجاح. شكراً لك.');
+        else wp_send_json_error('فشل في إرسال الرد');
     }
 
     public function inject_global_alerts() {

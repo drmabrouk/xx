@@ -204,9 +204,8 @@ document.getElementById('workedia-quick-task-form').addEventListener('submit', f
     const deadline = document.getElementById('quick-task-deadline').value;
     const reminder = document.getElementById('quick-task-reminder').value;
 
-    const taskDate = new Date();
-    if (reminder && new Date(reminder) < taskDate) {
-        alert('تنبيه: لا يمكن تعيين وقت التذكير قبل الوقت الحالي.');
+    if (reminder && new Date(reminder) < new Date()) {
+        alert('تنبيه: لا يمكن تعيين وقت التذكير في الماضي.');
         return;
     }
 
@@ -229,6 +228,12 @@ document.getElementById('workedia-quick-task-form').addEventListener('submit', f
 
 document.getElementById('workedia-task-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    const deadline = this.elements['deadline'].value;
+    const reminder = this.elements['reminder_at'].value;
+    if (reminder && new Date(reminder) < new Date()) {
+        alert('تنبيه: لا يمكن تعيين وقت التذكير في الماضي.');
+        return;
+    }
     const fd = new FormData(this);
     fd.append('action', 'workedia_save_task');
     fd.append('nonce', '<?php echo wp_create_nonce("workedia_tasklist_action"); ?>');
