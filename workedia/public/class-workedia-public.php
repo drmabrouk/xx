@@ -2008,6 +2008,13 @@ class Workedia_Public {
         else wp_send_json_error('Failed to delete form');
     }
 
+    public function ajax_duplicate_form() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_formbuilder_action', 'nonce');
+        if (Workedia_FormBuilder::duplicate_form($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to duplicate form');
+    }
+
     public function ajax_get_submissions() {
         if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
         check_ajax_referer('workedia_formbuilder_action', 'nonce');
@@ -2066,7 +2073,8 @@ class Workedia_Public {
         if (!is_user_logged_in()) wp_die();
         $args = [
             'search' => $_GET['search'] ?? '',
-            'category' => $_GET['category'] ?? ''
+            'category' => $_GET['category'] ?? '',
+            'file_type' => $_GET['file_type'] ?? ''
         ];
         $docs = Workedia_Documents::get_documents(get_current_user_id(), $args);
         include WORKEDIA_PLUGIN_DIR . 'templates/app-document-archive-list.php';

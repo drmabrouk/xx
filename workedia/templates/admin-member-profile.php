@@ -30,21 +30,32 @@ $member_mode_active = isset($member_mode) && $member_mode === true;
     <?php if (!$member_mode_active): ?>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--workedia-border-color); box-shadow: var(--workedia-shadow);">
         <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="position: relative;">
-                <div id="member-photo-container" style="width: 80px; height: 80px; background: #f0f4f8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 3px solid var(--workedia-primary-color); overflow: hidden;">
+            <div style="position: relative;" class="profile-photo-wrapper">
+                <div id="member-photo-container" onclick="workediaTriggerPhotoUpload()" style="width: 80px; height: 80px; background: #f0f4f8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 3px solid var(--workedia-primary-color); overflow: hidden; cursor: pointer; position: relative; transition: 0.3s;">
                     <?php if ($member->photo_url): ?>
                         <img src="<?php echo esc_url($member->photo_url); ?>" style="width:100%; height:100%; object-fit:cover;">
                     <?php else: ?>
                         👤
                     <?php endif; ?>
+                    <div class="photo-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: 0.3s;">
+                        <span class="dashicons dashicons-camera" style="font-size: 20px; width: 20px; height: 20px;"></span>
+                    </div>
                 </div>
-                <button onclick="workediaTriggerPhotoUpload()" style="position: absolute; bottom: 0; right: 0; background: var(--workedia-primary-color); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    <span class="dashicons dashicons-camera" style="font-size: 14px; width: 14px; height: 14px;"></span>
-                </button>
                 <input type="file" id="member-photo-input" style="display:none;" accept="image/*" onchange="workediaUploadMemberPhoto(<?php echo $member->id; ?>)">
+
+                <?php
+                $incomplete = (empty($member->phone) || empty($member->email) || empty($member->residence_city));
+                if ($incomplete): ?>
+                    <div class="profile-incomplete-indicator" title="بيانات ناقصة" style="position: absolute; top: -5px; right: -5px; background: #e53e3e; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: help; z-index: 10;">
+                        <span style="font-weight: 900; font-size: 12px;">!</span>
+                    </div>
+                <?php endif; ?>
             </div>
             <div>
                 <h2 style="margin:0; color: var(--workedia-dark-color); border: none; padding: 0;"><?php echo esc_html($member->first_name . ' ' . $member->last_name); ?></h2>
+                <?php if ($incomplete): ?>
+                    <div style="color: #e53e3e; font-size: 12px; font-weight: 700; margin-top: 4px;"><span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px;"></span> يرجى استكمال البيانات المفقودة</div>
+                <?php endif; ?>
             </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -178,12 +189,17 @@ function workediaUploadMemberPhoto(memberId) {
     formData.append('member_photo', file);
     formData.append('workedia_photo_nonce', '<?php echo wp_create_nonce("workedia_photo_action"); ?>');
 
+    workediaShowNotification('جاري رفع الصورة...');
+
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
     .then(r => r.json())
     .then(res => {
         if (res.success) {
-            document.getElementById('member-photo-container').innerHTML = `<img src="${res.data.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
-            workediaShowNotification('تم تحديث الصورة الشخصية');
+            document.getElementById('member-photo-container').innerHTML =
+                `<img src="${res.data.photo_url}" style="width:100%; height:100%; object-fit:cover;">` +
+                `<div class="photo-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: 0.3s;">` +
+                `<span class="dashicons dashicons-camera" style="font-size: 20px; width: 20px; height: 20px;"></span></div>`;
+            workediaShowNotification('تم تحديث الصورة الشخصية بنجاح');
         } else {
             alert('فشل الرفع: ' + res.data);
         }
@@ -253,3 +269,9 @@ document.getElementById('edit-member-form').onsubmit = function(e) {
     });
 };
 </script>
+
+<style>
+.profile-photo-wrapper:hover .photo-overlay {
+    opacity: 1 !important;
+}
+</style>

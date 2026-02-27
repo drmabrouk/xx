@@ -168,4 +168,86 @@ class Workedia_Notifications {
             $limit, $offset
         ));
     }
+
+    /**
+     * Centralized function to get UI-ready notifications for a user
+     */
+    public static function get_ui_notifications($user_id) {
+        global $wpdb;
+        $notifs = [];
+        $user = get_userdata($user_id);
+        if (!$user) return [];
+
+        $is_admin = in_array('administrator', $user->roles);
+
+        // 1. Unread Messages
+        $unread_msgs_count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}workedia_messages WHERE receiver_id = %d AND is_read = 0",
+            $user_id
+        ));
+        if ($unread_msgs_count > 0) {
+            $notifs[] = [
+                'text' => "لديك $unread_msgs_count رسائل جديدة غير مقروءة",
+                'type' => 'messaging',
+                'color' => '#3182ce',
+                'icon' => 'dashicons-email',
+                'link' => add_query_arg('workedia_tab', 'messaging', '#')
+            ];
+        }
+
+        // 2. Form Submissions (for admins)
+        if ($is_admin) {
+            $recent_subs = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}workedia_form_submissions WHERE submitted_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+            if ($recent_subs > 0) {
+                $notifs[] = [
+                    'text' => "تم استلام $recent_subs ردود جديدة على النماذج اليوم",
+                    'type' => 'form',
+                    'color' => '#38a169',
+                    'icon' => 'dashicons-forms',
+                    'link' => add_query_arg('workedia_tab', 'form-builder', '#')
+                ];
+            }
+        }
+
+        // 3. Tasks Due Soon
+        $tasks_due = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, title FROM {$wpdb->prefix}workedia_tasks WHERE user_id = %d AND status = 'pending' AND deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 DAY)",
+            $user_id
+        ));
+        foreach($tasks_due as $t) {
+            $notifs[] = [
+                'text' => 'مهمة عاجلة: ' . $t->title,
+                'type' => 'task',
+                'color' => '#e53e3e',
+                'icon' => 'dashicons-clock',
+                'link' => add_query_arg('workedia_tab', 'task-list', '#')
+            ];
+        }
+
+        // 4. Membership Warnings
+        $member = $wpdb->get_row($wpdb->prepare("SELECT last_paid_membership_year FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
+        if ($member && $member->last_paid_membership_year < date('Y')) {
+            $notifs[] = [
+                'text' => 'يوجد متأخرات في تجديد العضوية السنوية',
+                'type' => 'warning',
+                'color' => '#d69e2e',
+                'icon' => 'dashicons-warning',
+                'link' => add_query_arg('workedia_tab', 'my-profile', '#')
+            ];
+        }
+
+        // 5. System Alerts (Unacknowledged)
+        $sys_alerts = Workedia_DB::get_active_alerts_for_user($user_id);
+        foreach($sys_alerts as $sa) {
+            $notifs[] = [
+                'text' => $sa->title,
+                'type' => 'system',
+                'color' => 'var(--workedia-primary-color)',
+                'icon' => 'dashicons-megaphone',
+                'link' => '#'
+            ];
+        }
+
+        return $notifs;
+    }
 }

@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container form-builder-app">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">منشئ النماذج الذكي</h2>
         <button onclick="workediaOpenFormCreator()" class="workedia-btn" style="width: auto;">+ إنشاء نموذج جديد</button>
@@ -26,6 +27,7 @@
                         <div class="workedia-actions-content">
                             <a href="javascript:void(0)" onclick='workediaViewSubmissions(<?php echo $form->id; ?>, "<?php echo esc_js($form->title); ?>")' class="workedia-action-item"><span class="dashicons dashicons-list-view"></span> عرض الردود</a>
                             <a href="javascript:void(0)" onclick='workediaCopyFormLink("<?php echo esc_js($form->public_token); ?>")' class="workedia-action-item"><span class="dashicons dashicons-admin-links"></span> نسخ الرابط</a>
+                            <a href="javascript:void(0)" onclick="workediaDuplicateForm(<?php echo $form->id; ?>)" class="workedia-action-item"><span class="dashicons dashicons-admin-page"></span> تكرار النموذج</a>
                             <a href="javascript:void(0)" onclick="workediaDeleteForm(<?php echo $form->id; ?>)" class="workedia-action-item" style="color: #e53e3e !important;"><span class="dashicons dashicons-trash"></span> حذف</a>
                         </div>
                     </div>
@@ -158,9 +160,9 @@ function renderBuilder() {
     }
 
     preview.innerHTML = currentFormFields.map(f => `
-        <div class="builder-item" style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <div class="builder-item" data-id="${f.id}" style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: move;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span style="font-size: 10px; font-weight: 800; color: var(--workedia-primary-color); text-transform: uppercase;">${f.type} ${f.required ? '<span style="color:#e53e3e;">* مطلوب</span>' : ''}</span>
+                <span style="font-size: 10px; font-weight: 800; color: var(--workedia-primary-color); text-transform: uppercase;"><span class="dashicons dashicons-move" style="font-size: 14px; width: 14px; height: 14px; margin-left: 5px;"></span> ${f.type} ${f.required ? '<span style="color:#e53e3e;">* مطلوب</span>' : ''}</span>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="toggleRequired(${f.id})" style="background:none; border:none; cursor:pointer; color:#94a3b8;" title="تغيير حالة الإلزام"><span class="dashicons dashicons-flag"></span></button>
                     <button onclick="removeFormField(${f.id})" style="background:none; border:none; cursor:pointer; color:#e53e3e;" title="حذف"><span class="dashicons dashicons-trash"></span></button>
@@ -170,6 +172,18 @@ function renderBuilder() {
             ${renderFieldPreview(f)}
         </div>
     `).join('');
+
+    Sortable.create(preview, {
+        animation: 150,
+        onEnd: function() {
+            const newOrder = [];
+            preview.querySelectorAll('.builder-item').forEach(el => {
+                const id = parseInt(el.getAttribute('data-id'));
+                newOrder.push(currentFormFields.find(f => f.id === id));
+            });
+            currentFormFields = newOrder;
+        }
+    });
 }
 
 function renderFieldPreview(f) {
@@ -218,6 +232,20 @@ function workediaCopyFormLink(token) {
     const link = `<?php echo home_url('/forms?f='); ?>${token}`;
     navigator.clipboard.writeText(link).then(() => {
         workediaShowNotification('تم نسخ رابط النموذج بنجاح');
+    });
+}
+
+function workediaDuplicateForm(id) {
+    if (!confirm('هل تريد إنشاء نسخة مطابقة من هذا النموذج؟')) return;
+    const fd = new FormData();
+    fd.append('action', 'workedia_duplicate_form');
+    fd.append('id', id);
+    fd.append('nonce', '<?php echo wp_create_nonce("workedia_formbuilder_action"); ?>');
+    fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+        if (res.success) {
+            workediaShowNotification('تم تكرار النموذج بنجاح');
+            location.reload();
+        } else alert(res.data);
     });
 }
 

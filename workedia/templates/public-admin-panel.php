@@ -39,6 +39,26 @@
     window.workediaShowNotification = WORKEDIA_UI.showNotification;
     window.workediaOpenInternalTab = WORKEDIA_UI.openInternalTab;
 
+    // Browser Notification API Support
+    window.workediaRequestNotificationPermission = function() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+    };
+
+    window.workediaSendBrowserNotification = function(title, options = {}) {
+        if (!("Notification" in window) || Notification.permission !== "granted") return;
+        const defaultOptions = {
+            icon: '<?php echo esc_url($workedia["workedia_logo"]); ?>',
+            dir: 'rtl',
+            lang: 'ar'
+        };
+        new Notification(title, Object.assign(defaultOptions, options));
+    };
+
+    window.addEventListener('load', workediaRequestNotificationPermission);
+
     window.workediaViewLogDetails = function(log) {
         const detailsBody = document.getElementById('log-details-body');
         let detailsText = log.details;
@@ -435,7 +455,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     <?php
                     $unread_msgs = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}workedia_messages WHERE receiver_id = %d AND is_read = 0", $user->ID));
                     if ($unread_msgs > 0): ?>
-                        <span class="workedia-icon-badge" style="background: #e53e3e;"><?php echo $unread_msgs; ?></span>
+                        <span class="workedia-icon-badge" style="background: #3182ce;"><?php echo $unread_msgs; ?></span>
                     <?php endif; ?>
                 </a>
 
@@ -444,43 +464,36 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     <a href="javascript:void(0)" onclick="workediaToggleNotifications()" class="workedia-header-circle-icon" title="التنبيهات">
                         <span class="dashicons dashicons-bell"></span>
                         <?php
-                        $notif_alerts = [];
-                        if ($is_restricted) {
-                            $member_by_wp = $wpdb->get_row($wpdb->prepare("SELECT id, last_paid_membership_year FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user->ID));
-                            if ($member_by_wp) {
-                                if ($member_by_wp->last_paid_membership_year < date('Y')) {
-                                    $notif_alerts[] = ['text' => 'يوجد متأخرات في تجديد العضوية السنوية', 'type' => 'warning'];
-                                }
-                            }
-                        }
-
-                        // Integrated System Alerts
-                        $sys_alerts = Workedia_DB::get_active_alerts_for_user($user->ID);
-                        foreach($sys_alerts as $sa) {
-                            $notif_alerts[] = ['text' => $sa->title, 'type' => 'system', 'id' => $sa->id];
-                        }
-
+                        $notif_alerts = Workedia_Notifications::get_ui_notifications($user->ID);
                         if (count($notif_alerts) > 0): ?>
-                            <span class="workedia-icon-dot" style="background: #f6ad55;"></span>
+                            <span class="workedia-icon-dot" style="background: #e53e3e;"></span>
                         <?php endif; ?>
                     </a>
-                    <div id="workedia-notifications-menu" style="display: none; position: absolute; top: 150%; left: 0; background: white; border: 1px solid var(--workedia-border-color); border-radius: 8px; width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; padding: 15px;">
-                        <h4 style="margin: 0 0 10px 0; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px;">التنبيهات والإشعارات</h4>
-                        <?php if (empty($notif_alerts)): ?>
-                            <div style="font-size: 12px; color: #94a3b8; text-align: center; padding: 10px;">لا توجد تنبيهات جديدة حالياً</div>
-                        <?php else: ?>
-                            <?php foreach ($notif_alerts as $a): ?>
-                                <div style="font-size: 12px; padding: 8px; border-bottom: 1px solid #f9fafb; color: #4a5568; display: flex; gap: 8px; align-items: flex-start;">
-                                    <span class="dashicons <?php echo $a['type'] == 'system' ? 'dashicons-megaphone' : 'dashicons-warning'; ?>" style="font-size: 16px; color: <?php echo $a['type'] == 'system' ? 'var(--workedia-primary-color)' : '#d69e2e'; ?>;"></span>
-                                    <span>
-                                        <?php echo $a['text']; ?>
-                                        <?php if($a['type'] == 'system'): ?>
-                                            <br><a href="javascript:location.reload()" style="font-size:10px; color:var(--workedia-primary-color); font-weight:700;">عرض التفاصيل</a>
-                                        <?php endif; ?>
-                                    </span>
+                    <div id="workedia-notifications-menu" style="display: none; position: absolute; top: 150%; left: 0; background: white; border: 1px solid var(--workedia-border-color); border-radius: 12px; width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); z-index: 1000; overflow: hidden;">
+                        <div style="padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; font-size: 14px; font-weight: 800;">مركز التنبيهات</h4>
+                            <span class="workedia-badge" style="background: #e2e8f0; color: #4a5568;"><?php echo count($notif_alerts); ?></span>
+                        </div>
+                        <div style="max-height: 350px; overflow-y: auto; padding: 10px 0;">
+                            <?php if (empty($notif_alerts)): ?>
+                                <div style="font-size: 12px; color: #94a3b8; text-align: center; padding: 40px 20px;">
+                                    <span class="dashicons dashicons-bell-off" style="font-size: 32px; width: 32px; height: 32px; display: block; margin: 0 auto 10px; opacity: 0.3;"></span>
+                                    لا توجد تنبيهات جديدة حالياً
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <?php foreach ($notif_alerts as $a): ?>
+                                    <a href="<?php echo esc_url($a['link']); ?>" class="notif-item-hover" style="font-size: 12px; padding: 12px 20px; border-bottom: 1px solid #f8fafb; color: #4a5568; display: flex; gap: 12px; align-items: flex-start; transition: 0.2s; cursor: pointer; text-decoration: none !important;">
+                                        <span class="dashicons <?php echo $a['icon']; ?>" style="font-size: 18px; width: 18px; height: 18px; color: <?php echo $a['color']; ?>; margin-top: 2px;"></span>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; line-height: 1.4; color: #4a5568;"><?php echo $a['text']; ?></div>
+                                            <?php if($a['type'] == 'system'): ?>
+                                                <div style="font-size:10px; color:var(--workedia-primary-color); font-weight:800; margin-top: 5px;">عرض التفاصيل <span class="dashicons dashicons-arrow-left-alt2" style="font-size: 10px; width: 10px; height: 10px;"></span></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>

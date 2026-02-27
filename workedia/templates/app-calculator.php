@@ -62,6 +62,19 @@
                 </div>
             </div>
 
+            <!-- Specialized Panels -->
+            <div id="calc-special-panel" style="display: none; direction: rtl; animation: workediaSlideUp 0.3s ease;">
+                <h4 id="special-title" style="margin: 0 0 20px 0; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; color: var(--workedia-primary-color);">الأداة المتخصصة</h4>
+
+                <div id="special-content">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <button class="workedia-btn workedia-btn-outline" style="width: 100%; font-size: 12px; height: 35px; margin-top: 20px;" onclick="toggleConverter(null)">
+                    <span class="dashicons dashicons-arrow-right-alt2" style="font-size: 16px;"></span> العودة لسجل العمليات
+                </button>
+            </div>
+
             <!-- Unit Converter (Hidden by default) -->
             <div id="calc-converter-panel" style="display: none; direction: rtl; animation: workediaSlideUp 0.3s ease;">
                 <h4 id="converter-title" style="margin: 0 0 20px 0; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; color: var(--workedia-primary-color);">تحويل الوحدات</h4>
@@ -125,8 +138,10 @@
 let calcState = {
     display: '0',
     expression: '',
-    history: []
+    history: JSON.parse(localStorage.getItem('workedia_calc_history') || '[]')
 };
+
+window.addEventListener('load', renderHistory);
 
 function updateDisplay() {
     document.getElementById('calc-result').innerText = calcState.display;
@@ -162,12 +177,19 @@ function calcAction(type, val) {
 }
 
 function addToHistory(item) {
-    calcState.history.unshift(item);
+    calcState.history.unshift({
+        expr: item,
+        time: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+    });
+    if (calcState.history.length > 50) calcState.history.pop();
+    localStorage.setItem('workedia_calc_history', JSON.stringify(calcState.history));
     renderHistory();
 }
 
 function clearCalcHistory() {
+    if (!confirm('هل تريد مسح سجل العمليات بالكامل؟')) return;
     calcState.history = [];
+    localStorage.removeItem('workedia_calc_history');
     renderHistory();
 }
 
@@ -177,7 +199,12 @@ function renderHistory() {
         list.innerHTML = '<div style="color: #94a3b8; text-align: center; margin-top: 50px;">لا توجد عمليات مسبقة</div>';
         return;
     }
-    list.innerHTML = calcState.history.map(h => `<div class="history-item" onclick="calcState.display='${h.split('=')[1].trim()}';updateDisplay()">${h}</div>`).join('');
+    list.innerHTML = calcState.history.map(h => `
+        <div class="history-item" style="padding: 12px; margin-bottom: 8px; background: #f8fafc; border-radius: 12px; border: 1px solid #edf2f7; cursor: pointer;" onclick="calcState.display='${h.expr.split('=')[1].trim()}';updateDisplay()">
+            <div style="font-size: 10px; color: #94a3b8; margin-bottom: 4px;">${h.time}</div>
+            <div style="font-weight: 700; word-break: break-all;">${h.expr}</div>
+        </div>
+    `).join('');
 }
 
 const unitData = {

@@ -3,7 +3,8 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">حاسبة مؤشر كتلة الجسم (BMI)</h2>
         <div style="display:flex; gap:10px;">
-            <button onclick="window.print()" class="workedia-btn workedia-btn-outline" style="width:auto;"><span class="dashicons dashicons-printer"></span> طباعة</button>
+            <button onclick="workediaGenerateBMIReport()" class="workedia-btn" style="width:auto; background: #27ae60;"><span class="dashicons dashicons-media-document"></span> استخراج تقرير صحي</button>
+            <button onclick="window.print()" class="workedia-btn workedia-btn-outline" style="width:auto;"><span class="dashicons dashicons-printer"></span> طباعة السجل</button>
         </div>
     </div>
 
@@ -27,6 +28,10 @@
                         <label class="workedia-label" id="label-height" style="font-size: 12px;">الطول (سم):</label>
                         <input type="number" id="bmi-height" class="workedia-input" step="0.1" required oninput="calculateBMI()" style="height: 40px;">
                     </div>
+                </div>
+                <div class="workedia-form-group">
+                    <label class="workedia-label" style="font-size: 12px;">العمر:</label>
+                    <input type="number" id="bmi-age" class="workedia-input" min="1" max="120" oninput="calculateBMI()" style="height: 40px;" placeholder="أدخل عمرك">
                 </div>
 
                 <div id="bmi-result-box" style="margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; background: #fcfcfc; border: 1px solid #f1f5f9; transition: 0.3s; position: relative; overflow: hidden;">
@@ -76,6 +81,7 @@ function calculateBMI() {
         bmi = (w / (h * h)) * 703;
     }
 
+    const age = parseInt(document.getElementById('bmi-age').value) || 30;
     const valueEl = document.getElementById('bmi-value');
     const statusEl = document.getElementById('bmi-status');
     const boxEl = document.getElementById('bmi-result-box');
@@ -85,7 +91,15 @@ function calculateBMI() {
 
     let status = '';
     let color = '';
-    let tip = '';
+
+    // Adjust logic based on age
+    let idealBmiMin = 18.5;
+    let idealBmiMax = 25;
+
+    if (age > 65) {
+        idealBmiMin = 22;
+        idealBmiMax = 27;
+    }
 
     const tips = {
         underweight: [
@@ -115,11 +129,11 @@ function calculateBMI() {
     };
 
     let tipItems = [];
-    if (bmi < 18.5) {
+    if (bmi < idealBmiMin) {
         status = 'نقص في الوزن';
         color = '#3182ce';
         tipItems = tips.underweight;
-    } else if (bmi < 25) {
+    } else if (bmi < idealBmiMax) {
         status = 'وزن مثالي';
         color = '#38a169';
         tipItems = tips.normal;
@@ -131,6 +145,11 @@ function calculateBMI() {
         status = 'سمنة مفرطة';
         color = '#e53e3e';
         tipItems = tips.obese;
+    }
+
+    // Add age-specific tip
+    if (age > 65) {
+        tipItems.unshift('بالنسبة لكبار السن (أكبر من 65 عاماً)، يفضل أن يكون مؤشر كتلة الجسم بين 22 و 27.');
     }
 
     statusEl.innerText = status;
@@ -152,6 +171,7 @@ document.getElementById('bmi-form').onsubmit = function(e) {
     e.preventDefault();
     const w = document.getElementById('bmi-weight').value;
     const h = document.getElementById('bmi-height').value;
+    const age = document.getElementById('bmi-age').value;
     const bmi = document.getElementById('bmi-value').innerText;
     const status = document.getElementById('bmi-status').innerText;
     const system = document.getElementById('bmi-unit-system').value;
@@ -160,6 +180,7 @@ document.getElementById('bmi-form').onsubmit = function(e) {
     fd.append('action', 'workedia_save_bmi');
     fd.append('weight', w);
     fd.append('height', h);
+    fd.append('age', age);
     fd.append('bmi', bmi);
     fd.append('classification', status);
     fd.append('units', JSON.stringify({ w: system === 'metric' ? 'kg' : 'lb', h: system === 'metric' ? 'cm' : 'inch' }));
@@ -179,6 +200,75 @@ function workediaRefreshBMIHistory() {
     .then(html => {
         document.getElementById('bmi-history-table').innerHTML = html;
     });
+}
+
+function workediaGenerateBMIReport() {
+    const bmi = document.getElementById('bmi-value').innerText;
+    const status = document.getElementById('bmi-status').innerText;
+    const weight = document.getElementById('bmi-weight').value;
+    const height = document.getElementById('bmi-height').value;
+    const age = document.getElementById('bmi-age').value || '-';
+
+    if (bmi === '0.0') {
+        alert('يرجى حساب مؤشر كتلة الجسم أولاً');
+        return;
+    }
+
+    const reportWindow = window.open('', '_blank');
+    const content = `
+        <html dir="rtl">
+        <head>
+            <title>تقرير صحي مفصل - Workedia</title>
+            <style>
+                body { font-family: "Rubik", sans-serif; padding: 40px; color: #1a202c; line-height: 1.6; }
+                .header { text-align: center; border-bottom: 3px solid #F63049; padding-bottom: 20px; margin-bottom: 40px; }
+                .report-title { font-size: 24px; font-weight: 800; color: #111F35; }
+                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+                .card { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+                .label { font-size: 12px; color: #64748b; font-weight: 600; }
+                .value { font-size: 18px; font-weight: 800; color: #111F35; margin-top: 5px; }
+                .bmi-result { text-align: center; padding: 30px; background: #F63049; color: white; border-radius: 20px; margin-bottom: 40px; }
+                .bmi-value { font-size: 48px; font-weight: 900; }
+                .bmi-status { font-size: 20px; font-weight: 700; margin-top: 10px; }
+                .tips-section { background: #fff; border: 2px solid #edf2f7; padding: 30px; border-radius: 20px; }
+                .tips-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+                .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #eee; padding-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="report-title">تقرير التقييم الصحي (BMI)</div>
+                <div style="font-size: 14px; color: #64748b; margin-top: 5px;">Workedia Health Services</div>
+            </div>
+
+            <div class="grid">
+                <div class="card"><div class="label">الاسم</div><div class="value"><?php echo wp_get_current_user()->display_name; ?></div></div>
+                <div class="card"><div class="label">تاريخ التقرير</div><div class="value">${new Date().toLocaleDateString('ar-EG')}</div></div>
+                <div class="card"><div class="label">العمر</div><div class="value">${age} عاماً</div></div>
+                <div class="card"><div class="label">الوزن / الطول</div><div class="value">${weight} كجم / ${height} سم</div></div>
+            </div>
+
+            <div class="bmi-result">
+                <div class="label" style="color: rgba(255,255,255,0.8);">مؤشر كتلة الجسم الخاص بك</div>
+                <div class="bmi-value">${bmi}</div>
+                <div class="bmi-status">${status}</div>
+            </div>
+
+            <div class="tips-section">
+                <div class="tips-title">💡 الإرشادات والتوصيات الصحية:</div>
+                <div id="tips-content">${document.getElementById('bmi-tip').innerHTML}</div>
+            </div>
+
+            <div class="footer">
+                صدر هذا التقرير آلياً عبر نظام Workedia. يرجى استشارة طبيب مختص قبل البدء بأي برنامج غذائي أو رياضي مكثف.
+            </div>
+
+            <script>window.print();<\/script>
+        </body>
+        </html>
+    `;
+    reportWindow.document.write(content);
+    reportWindow.document.close();
 }
 
 function workediaDeleteBMI(id) {

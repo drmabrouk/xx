@@ -17,6 +17,17 @@ if (!class_exists('Workedia_Documents')) {
                 $params[] = sanitize_text_field($args['category']);
             }
 
+            if (!empty($args['file_type'])) {
+                $type = $args['file_type'];
+                if ($type === 'pdf') {
+                    $where .= " AND file_url LIKE '%.pdf'";
+                } elseif ($type === 'doc') {
+                    $where .= " AND (file_url LIKE '%.doc' OR file_url LIKE '%.docx')";
+                } elseif ($type === 'image') {
+                    $where .= " AND (file_url LIKE '%.jpg' OR file_url LIKE '%.jpeg' OR file_url LIKE '%.png' OR file_url LIKE '%.webp')";
+                }
+            }
+
             return $wpdb->get_results($wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}workedia_documents_archive WHERE $where ORDER BY created_at DESC",
                 $params

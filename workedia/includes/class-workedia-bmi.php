@@ -22,7 +22,10 @@ if (!class_exists('Workedia_BMI')) {
                 'height' => floatval($data['height']),
                 'bmi' => floatval($data['bmi']),
                 'classification' => sanitize_text_field($data['classification']),
-                'units' => json_encode($data['units'] ?? ['w' => 'kg', 'h' => 'cm'])
+                'units' => json_encode(array_merge(
+                    json_decode($data['units'] ?? '{}', true),
+                    ['age' => intval($data['age'] ?? 30)]
+                ))
             ];
 
             if ($entry_id) {
