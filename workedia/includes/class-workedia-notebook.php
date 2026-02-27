@@ -57,6 +57,7 @@ if (!class_exists('Workedia_Notebook')) {
         public static function delete_note($note_id, $user_id) {
             global $wpdb;
             $table = $wpdb->prefix . 'workedia_notes';
+            $wpdb->delete($wpdb->prefix . 'workedia_note_shares', ['note_id' => intval($note_id)]);
             return $wpdb->delete($table, ['id' => intval($note_id), 'user_id' => intval($user_id)]);
         }
 
