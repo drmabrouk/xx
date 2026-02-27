@@ -88,6 +88,15 @@
             <h3>أرشيف الوثائق</h3>
             <p>حفظ وإدارة مستنداتك الهامة</p>
         </a>
+
+        <!-- CV Builder App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'cv-builder'); ?>" class="app-card">
+            <div class="app-icon" style="background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);">
+                <span class="dashicons dashicons-id-alt"></span>
+            </div>
+            <h3>منشئ السيرة الذاتية</h3>
+            <p>بناء CV احترافي متوافق مع ATS</p>
+        </a>
     </div>
 </div>
 

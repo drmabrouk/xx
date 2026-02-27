@@ -374,7 +374,7 @@ if ($member_mode) {
     }
 }
 
-if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder', 'bmi', 'documents'])) {
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder', 'bmi', 'documents', 'cv-builder'])) {
     $active_tab = 'app-launcher';
 }
 
@@ -586,6 +586,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <a href="<?php echo add_query_arg('workedia_tab', 'documents'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-portfolio"></span> <?php echo $labels['tab_documents']; ?></a>
                     </li>
 
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'cv-builder' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'cv-builder'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-id-alt"></span> <?php echo $labels['tab_cv_builder']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -662,6 +666,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'documents':
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-document-archive.php';
+                    break;
+
+                case 'cv-builder':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-cv-builder.php';
                     break;
 
 

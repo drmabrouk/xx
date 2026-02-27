@@ -24,6 +24,7 @@ class Workedia {
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-formbuilder.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-bmi.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-documents.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-cvbuilder.php';
         require_once WORKEDIA_PLUGIN_DIR . 'admin/class-workedia-admin.php';
         require_once WORKEDIA_PLUGIN_DIR . 'public/class-workedia-public.php';
         $this->loader = new Workedia_Loader();
@@ -90,6 +91,12 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_upload_doc', $plugin_public, 'ajax_upload_doc');
         $this->loader->add_action('wp_ajax_workedia_delete_doc', $plugin_public, 'ajax_delete_doc');
         $this->loader->add_action('wp_ajax_workedia_get_docs_list_ajax', $plugin_public, 'ajax_get_docs_list');
+
+        // CV Builder AJAX
+        $this->loader->add_action('wp_ajax_workedia_save_cv', $plugin_public, 'ajax_save_cv');
+        $this->loader->add_action('wp_ajax_workedia_delete_cv', $plugin_public, 'ajax_delete_cv');
+        $this->loader->add_action('wp_ajax_workedia_get_cv_versions', $plugin_public, 'ajax_get_cv_versions');
+        $this->loader->add_action('wp_ajax_workedia_restore_cv_version', $plugin_public, 'ajax_restore_cv_version');
 
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');
