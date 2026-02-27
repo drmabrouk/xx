@@ -6,7 +6,7 @@ if (!class_exists('Workedia_TaskList')) {
             global $wpdb;
             $table = $wpdb->prefix . 'workedia_tasks';
             return $wpdb->get_results($wpdb->prepare(
-                "SELECT * FROM $table WHERE user_id = %d ORDER BY deadline ASC, created_at DESC",
+                "SELECT * FROM $table WHERE user_id = %d ORDER BY sort_order ASC, deadline ASC, created_at DESC",
                 $user_id
             ));
         }
@@ -108,6 +108,16 @@ if (!class_exists('Workedia_TaskList')) {
 
         public static function sync_with_gmail($user_id) {
             // Placeholder logic for Gmail API integration
+            return true;
+        }
+
+        public static function update_order($user_id, $ids) {
+            global $wpdb;
+            $table = $wpdb->prefix . 'workedia_tasks';
+            $ids_array = explode(',', $ids);
+            foreach ($ids_array as $index => $id) {
+                $wpdb->update($table, ['sort_order' => $index], ['id' => intval($id), 'user_id' => $user_id]);
+            }
             return true;
         }
     }

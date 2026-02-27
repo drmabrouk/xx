@@ -1903,7 +1903,8 @@ class Workedia_Public {
 
     public function ajax_get_notebook_grid() {
         if (!is_user_logged_in()) wp_die();
-        $notes = Workedia_Notebook::get_notes(get_current_user_id());
+        $search = sanitize_text_field($_GET['search'] ?? '');
+        $notes = Workedia_Notebook::get_notes(get_current_user_id(), $search);
         include WORKEDIA_PLUGIN_DIR . 'templates/app-notebook-grid.php';
         wp_die();
     }
@@ -1945,6 +1946,13 @@ class Workedia_Public {
         check_ajax_referer('workedia_tasklist_action', 'nonce');
         if (Workedia_TaskList::toggle_subtask($_POST['id'], $_POST['is_completed'])) wp_send_json_success();
         else wp_send_json_error('Failed to toggle subtask');
+    }
+
+    public function ajax_update_task_order() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        if (Workedia_TaskList::update_order(get_current_user_id(), $_POST['ids'])) wp_send_json_success();
+        else wp_send_json_error('Failed to update order');
     }
 
     public function ajax_get_tasklist_items() {

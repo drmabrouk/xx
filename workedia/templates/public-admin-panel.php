@@ -368,7 +368,7 @@ if ($member_mode) {
     }
 }
 
-if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list'])) {
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator'])) {
     $active_tab = 'app-launcher';
 }
 
@@ -623,6 +623,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'task-list':
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list.php';
+                    break;
+
+                case 'calculator':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-calculator.php';
                     break;
 
 

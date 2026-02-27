@@ -52,6 +52,15 @@
             <h3>مركز المراسلات</h3>
             <p>التواصل المباشر مع إدارة Workedia</p>
         </a>
+
+        <!-- Calculator App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'calculator'); ?>" class="app-card">
+            <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <span class="dashicons dashicons-calculator"></span>
+            </div>
+            <h3>الحاسبة المتطورة</h3>
+            <p>أدوات مالية وتحويلات احترافية</p>
+        </a>
     </div>
 </div>
 

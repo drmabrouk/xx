@@ -69,6 +69,7 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_toggle_task', $plugin_public, 'ajax_toggle_task');
         $this->loader->add_action('wp_ajax_workedia_add_subtask', $plugin_public, 'ajax_add_subtask');
         $this->loader->add_action('wp_ajax_workedia_toggle_subtask', $plugin_public, 'ajax_toggle_subtask');
+        $this->loader->add_action('wp_ajax_workedia_update_task_order', $plugin_public, 'ajax_update_task_order');
 
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');

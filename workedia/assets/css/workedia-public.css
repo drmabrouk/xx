@@ -656,3 +656,45 @@
     width: 18px;
     height: 18px;
 }
+
+/* Calculator Specific Styling */
+.calc-main {
+    max-width: 450px;
+}
+.calc-btn {
+    user-select: none;
+}
+.calc-btn:active {
+    transform: scale(0.95);
+}
+.calc-btn.op:active {
+    background: var(--workedia-primary-color);
+    color: #fff;
+}
+
+/* Notebook Enhanced Styles */
+.color-dot:has(input:checked)::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--workedia-dark-color);
+    font-weight: 900;
+}
+.note-tag {
+    transition: 0.2s;
+}
+.note-tag:hover {
+    background: var(--workedia-primary-color) !important;
+    color: #fff !important;
+}
+
+/* Task List Sortable Styles */
+.task-ghost {
+    opacity: 0.4;
+    background: var(--workedia-pastel-red) !important;
+    border: 2px dashed var(--workedia-primary-color) !important;
+}

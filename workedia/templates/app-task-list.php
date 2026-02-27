@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container tasklist-app">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">مدير المهام</h2>
         <div style="display: flex; gap: 10px;">
@@ -91,13 +92,59 @@ function workediaEditTask(task) {
     document.getElementById('workedia-task-modal').style.display = 'flex';
 }
 
+function workediaInitTaskSorting() {
+    const el = document.getElementById('workedia-tasklist-items');
+    if (!el) return;
+    Sortable.create(el, {
+        animation: 150,
+        handle: '.task-drag-handle',
+        ghostClass: 'task-ghost',
+        onEnd: function() {
+            const ids = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                ids.push(item.getAttribute('data-id'));
+            });
+            const fd = new FormData();
+            fd.append('action', 'workedia_update_task_order');
+            fd.append('ids', ids.join(','));
+            fd.append('nonce', '<?php echo wp_create_nonce("workedia_tasklist_action"); ?>');
+            fetch(ajaxurl, { method: 'POST', body: fd });
+        }
+    });
+}
+
 function workediaRefreshTaskList() {
     fetch(ajaxurl + '?action=workedia_get_tasklist_items_ajax')
     .then(r => r.text())
     .then(html => {
         document.getElementById('workedia-tasklist-items').innerHTML = html;
+        workediaInitTaskSorting();
+        workediaCheckDueTasks();
     });
 }
+
+function workediaCheckDueTasks() {
+    const now = new Date();
+    document.querySelectorAll('.task-item').forEach(item => {
+        const deadline = item.getAttribute('data-deadline');
+        const status = item.getAttribute('data-status');
+        const title = item.querySelector('h4').innerText;
+
+        if (deadline && status !== 'completed') {
+            const dueDate = new Date(deadline);
+            const diff = dueDate - now;
+
+            // If due in next 5 minutes and not notified
+            if (diff > 0 && diff < 300000 && !item.hasAttribute('data-notified')) {
+                workediaShowNotification(`مهمة عاجلة: ${title}`, true);
+                item.setAttribute('data-notified', 'true');
+            }
+        }
+    });
+}
+setInterval(workediaCheckDueTasks, 60000);
+
+window.addEventListener('load', workediaInitTaskSorting);
 
 function workediaToggleTask(id, completed) {
     const fd = new FormData();
