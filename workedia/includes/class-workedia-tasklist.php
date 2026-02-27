@@ -35,6 +35,7 @@ if (!class_exists('Workedia_TaskList')) {
                 $update_data = [];
                 if (isset($data['title'])) $update_data['title'] = sanitize_text_field($data['title']);
                 if (isset($data['description'])) $update_data['description'] = sanitize_textarea_field($data['description']);
+                if (isset($data['task_date'])) $update_data['task_date'] = sanitize_text_field($data['task_date']);
                 if (isset($data['deadline'])) $update_data['deadline'] = !empty($data['deadline']) ? sanitize_text_field($data['deadline']) : null;
                 if (isset($data['reminder_at'])) $update_data['reminder_at'] = !empty($data['reminder_at']) ? sanitize_text_field($data['reminder_at']) : null;
                 if (isset($data['status'])) $update_data['status'] = sanitize_text_field($data['status']);
@@ -48,7 +49,9 @@ if (!class_exists('Workedia_TaskList')) {
                     'user_id' => get_current_user_id(),
                     'title' => sanitize_text_field($data['title'] ?? ''),
                     'description' => sanitize_textarea_field($data['description'] ?? ''),
+                    'task_date' => sanitize_text_field($data['task_date'] ?? date('Y-m-d H:i:s')),
                     'deadline' => !empty($data['deadline']) ? sanitize_text_field($data['deadline']) : null,
+                    'reminder_at' => !empty($data['reminder_at']) ? sanitize_text_field($data['reminder_at']) : null,
                     'status' => sanitize_text_field($data['status'] ?? 'pending')
                 ];
                 $wpdb->insert($table, $insert_data);
