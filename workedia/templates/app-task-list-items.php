@@ -34,6 +34,16 @@
                     </h4>
                     <div style="display: flex; gap: 10px; margin-top: 8px;">
                         <span class="workedia-badge" style="background: <?php echo $status_bg; ?>; color: <?php echo $status_color; ?>; font-size: 10px; padding: 4px 10px;"><?php echo $status_label; ?></span>
+                        <?php
+                        $priority_colors = ['high' => '#e53e3e', 'medium' => '#d69e2e', 'low' => '#38a169'];
+                        $priority_labels = ['high' => 'عالية', 'medium' => 'متوسطة', 'low' => 'منخفضة'];
+                        $p_color = $priority_colors[$task->priority] ?? '#718096';
+                        $p_label = $priority_labels[$task->priority] ?? $task->priority;
+                        ?>
+                        <span class="workedia-badge" style="background: <?php echo $p_color; ?>15; color: <?php echo $p_color; ?>; font-size: 10px; padding: 4px 10px; border: 1px solid <?php echo $p_color; ?>44;">
+                            <span class="dashicons dashicons-flag" style="font-size: 12px; width: 12px; height: 12px; vertical-align: middle; margin-left: 3px;"></span>
+                            <?php echo $p_label; ?>
+                        </span>
                         <?php if ($task->deadline): ?>
                             <span class="workedia-badge" style="background: #f8fafc; color: #64748b; font-size: 10px; padding: 4px 10px; display: flex; align-items: center; gap: 4px;">
                                 <span class="dashicons dashicons-calendar-alt" style="font-size: 12px; width: 12px; height: 12px;"></span>

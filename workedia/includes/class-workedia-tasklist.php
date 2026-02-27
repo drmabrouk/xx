@@ -2,13 +2,36 @@
 
 if (!class_exists('Workedia_TaskList')) {
     class Workedia_TaskList {
-        public static function get_tasks($user_id) {
+        public static function get_tasks($user_id, $filters = []) {
             global $wpdb;
             $table = $wpdb->prefix . 'workedia_tasks';
-            return $wpdb->get_results($wpdb->prepare(
-                "SELECT * FROM $table WHERE user_id = %d ORDER BY sort_order ASC, deadline ASC, created_at DESC",
-                $user_id
-            ));
+            $where = "user_id = %d";
+            $params = [$user_id];
+
+            if (!empty($filters['search'])) {
+                $where .= " AND (title LIKE %s OR description LIKE %s)";
+                $s = '%' . $wpdb->esc_like($filters['search']) . '%';
+                $params[] = $s;
+                $params[] = $s;
+            }
+
+            if (!empty($filters['status']) && $filters['status'] !== 'all') {
+                $where .= " AND status = %s";
+                $params[] = sanitize_text_field($filters['status']);
+            }
+
+            if (!empty($filters['priority']) && $filters['priority'] !== 'all') {
+                $where .= " AND priority = %s";
+                $params[] = sanitize_text_field($filters['priority']);
+            }
+
+            if (!empty($filters['date'])) {
+                $where .= " AND DATE(deadline) = %s";
+                $params[] = sanitize_text_field($filters['date']);
+            }
+
+            $query = "SELECT * FROM $table WHERE $where ORDER BY sort_order ASC, deadline ASC, created_at DESC";
+            return $wpdb->get_results($wpdb->prepare($query, $params));
         }
 
         public static function get_subtasks($task_id) {
@@ -38,6 +61,7 @@ if (!class_exists('Workedia_TaskList')) {
                 if (isset($data['task_date'])) $update_data['task_date'] = str_replace('T', ' ', sanitize_text_field($data['task_date']));
                 if (isset($data['deadline'])) $update_data['deadline'] = !empty($data['deadline']) ? str_replace('T', ' ', sanitize_text_field($data['deadline'])) : null;
                 if (isset($data['reminder_at'])) $update_data['reminder_at'] = !empty($data['reminder_at']) ? str_replace('T', ' ', sanitize_text_field($data['reminder_at'])) : null;
+                if (isset($data['priority'])) $update_data['priority'] = sanitize_text_field($data['priority']);
                 if (isset($data['status'])) $update_data['status'] = sanitize_text_field($data['status']);
 
                 if (!empty($update_data)) {
@@ -52,6 +76,7 @@ if (!class_exists('Workedia_TaskList')) {
                     'task_date' => str_replace('T', ' ', sanitize_text_field($data['task_date'] ?? date('Y-m-d H:i:s'))),
                     'deadline' => !empty($data['deadline']) ? str_replace('T', ' ', sanitize_text_field($data['deadline'])) : null,
                     'reminder_at' => !empty($data['reminder_at']) ? str_replace('T', ' ', sanitize_text_field($data['reminder_at'])) : null,
+                    'priority' => sanitize_text_field($data['priority'] ?? 'medium'),
                     'status' => sanitize_text_field($data['status'] ?? 'pending')
                 ];
                 $wpdb->insert($table, $insert_data);

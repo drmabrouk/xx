@@ -3,8 +3,40 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">مدير المهام</h2>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="workediaSyncGoogle()" class="workedia-btn workedia-btn-outline" style="width: auto; border-color: #4285F4; color: #4285F4 !important; background:white;"><span class="dashicons dashicons-google"></span> مزامنة Google</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="tasklist-search-wrapper" style="position: relative; width: 250px;">
+                <input type="text" id="tasklist-search" class="workedia-input" placeholder="بحث في المهام..." oninput="workediaRefreshTaskList()" style="padding-left: 35px; border-radius: 50px; background: #fff; height: 40px; font-size: 13px;">
+                <span class="dashicons dashicons-search" style="position: absolute; left: 12px; top: 10px; color: #94a3b8;"></span>
+            </div>
+            <button onclick="workediaSyncGoogle()" class="workedia-btn workedia-btn-outline" style="width: auto; border-color: #4285F4; color: #4285F4 !important; background:white; height: 40px; padding: 0 15px;"><span class="dashicons dashicons-google"></span> مزامنة Google</button>
+        </div>
+    </div>
+
+    <!-- Real-time Filter Bar -->
+    <div class="tasklist-filters" style="display: flex; gap: 10px; margin-bottom: 25px; background: white; padding: 15px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <div style="flex: 1;">
+            <label style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; margin-bottom: 5px;">الحالة</label>
+            <select id="filter-status" class="workedia-select" onchange="workediaRefreshTaskList()" style="height: 38px; font-size: 12px; border-radius: 8px;">
+                <option value="all">الكل</option>
+                <option value="pending">قيد الانتظار</option>
+                <option value="completed">تم الإنجاز</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; margin-bottom: 5px;">الأولوية</label>
+            <select id="filter-priority" class="workedia-select" onchange="workediaRefreshTaskList()" style="height: 38px; font-size: 12px; border-radius: 8px;">
+                <option value="all">الكل</option>
+                <option value="high">عالية</option>
+                <option value="medium">متوسطة</option>
+                <option value="low">منخفضة</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; margin-bottom: 5px;">التاريخ</label>
+            <input type="date" id="filter-date" class="workedia-input" onchange="workediaRefreshTaskList()" style="height: 38px; font-size: 12px; border-radius: 8px;">
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+            <button onclick="workediaResetFilters()" class="workedia-btn workedia-btn-outline" style="width: auto; height: 38px; font-size: 11px; padding: 0 15px; border-radius: 8px;">تصفير</button>
         </div>
     </div>
 
@@ -15,9 +47,19 @@
                 <input type="text" name="title" class="workedia-input" placeholder="ما هي المهمة التالية؟" style="border: none; padding: 10px 0; font-size: 1.1em; font-weight: 600; border-radius: 0;" required>
                 <input type="hidden" name="task_date" value="<?php echo date('Y-m-d H:i:s'); ?>">
                 <div class="task-creation-options" style="display: flex; gap: 20px; margin-top: 10px;">
-                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;" title="تاريخ المهمة">
-                        <span class="dashicons dashicons-clock" style="font-size:16px;"></span>
-                        <span><?php echo date('Y-m-d H:i'); ?></span>
+                    <div style="display:flex; align-items:center; gap:10px; color: #64748b; font-size: 12px;">
+                        <div style="display:flex; align-items:center; gap:5px;" title="تاريخ المهمة">
+                            <span class="dashicons dashicons-clock" style="font-size:16px;"></span>
+                            <span><?php echo date('Y-m-d H:i'); ?></span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px;" title="الأولوية">
+                            <span class="dashicons dashicons-flag" style="font-size:16px;"></span>
+                            <select name="priority" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent; font-weight:700;">
+                                <option value="medium">متوسطة</option>
+                                <option value="high">عالية</option>
+                                <option value="low">منخفضة</option>
+                            </select>
+                        </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;" title="تاريخ الاستحقاق">
                         <span class="dashicons dashicons-calendar-alt" style="font-size:16px;"></span>
@@ -59,6 +101,14 @@
             <div class="workedia-form-group">
                 <label class="workedia-label">الوصف التفصيلي:</label>
                 <textarea name="description" class="workedia-textarea" rows="3"></textarea>
+            </div>
+            <div class="workedia-form-group">
+                <label class="workedia-label">الأولوية:</label>
+                <select name="priority" class="workedia-select">
+                    <option value="low">منخفضة</option>
+                    <option value="medium">متوسطة</option>
+                    <option value="high">عالية</option>
+                </select>
             </div>
             <div class="workedia-form-group">
                 <label class="workedia-label">تاريخ الاستحقاق (Deadline):</label>
@@ -113,14 +163,39 @@ function workediaInitTaskSorting() {
     });
 }
 
+let taskSearchTimeout;
 function workediaRefreshTaskList() {
-    fetch(ajaxurl + '?action=workedia_get_tasklist_items_ajax')
-    .then(r => r.text())
-    .then(html => {
-        document.getElementById('workedia-tasklist-items').innerHTML = html;
-        workediaInitTaskSorting();
-        workediaCheckDueTasks();
-    });
+    clearTimeout(taskSearchTimeout);
+    taskSearchTimeout = setTimeout(() => {
+        const search = document.getElementById('tasklist-search').value;
+        const status = document.getElementById('filter-status').value;
+        const priority = document.getElementById('filter-priority').value;
+        const date = document.getElementById('filter-date').value;
+
+        const params = new URLSearchParams({
+            action: 'workedia_get_tasklist_items_ajax',
+            search: search,
+            status: status,
+            priority: priority,
+            date: date
+        });
+
+        fetch(ajaxurl + '?' + params.toString())
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('workedia-tasklist-items').innerHTML = html;
+            workediaInitTaskSorting();
+            workediaCheckDueTasks();
+        });
+    }, 300);
+}
+
+function workediaResetFilters() {
+    document.getElementById('tasklist-search').value = '';
+    document.getElementById('filter-status').value = 'all';
+    document.getElementById('filter-priority').value = 'all';
+    document.getElementById('filter-date').value = '';
+    workediaRefreshTaskList();
 }
 
 function workediaCheckDueTasks() {

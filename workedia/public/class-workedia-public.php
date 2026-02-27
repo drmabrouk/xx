@@ -1987,7 +1987,13 @@ class Workedia_Public {
 
     public function ajax_get_tasklist_items() {
         if (!is_user_logged_in()) wp_die();
-        $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
+        $filters = [
+            'search' => sanitize_text_field($_GET['search'] ?? ''),
+            'status' => sanitize_text_field($_GET['status'] ?? 'all'),
+            'priority' => sanitize_text_field($_GET['priority'] ?? 'all'),
+            'date' => sanitize_text_field($_GET['date'] ?? '')
+        ];
+        $tasks = Workedia_TaskList::get_tasks(get_current_user_id(), $filters);
         include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
         wp_die();
     }

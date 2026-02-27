@@ -1,4 +1,13 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<?php
+if (!defined('ABSPATH')) exit;
+$user_id = get_current_user_id();
+$existing_cvs = Workedia_CVBuilder::get_cvs($user_id);
+$cv = !empty($existing_cvs) ? $existing_cvs[0] : null;
+$cv_content = $cv ? $cv->content : 'null';
+$cv_settings = $cv ? $cv->settings : 'null';
+$cv_id = $cv ? $cv->id : 0;
+?>
 <div class="workedia-app-container cv-builder-app" dir="rtl">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -59,9 +68,9 @@
                     <div class="workedia-form-group">
                         <label class="workedia-label">اختر القالب:</label>
                         <div class="template-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="tpl-card active" onclick="selectTemplate('modern')">Modern</div>
-                            <div class="tpl-card" onclick="selectTemplate('classic')">Classic</div>
-                            <div class="tpl-card" onclick="selectTemplate('executive')">Executive</div>
+                            <div class="tpl-card active" onclick="selectTemplate('modern', this)">Modern</div>
+                            <div class="tpl-card" onclick="selectTemplate('classic', this)">Classic</div>
+                            <div class="tpl-card" onclick="selectTemplate('executive', this)">Executive</div>
                         </div>
                     </div>
                     <div class="workedia-form-group">
@@ -102,7 +111,8 @@
 </style>
 
 <script>
-let cvData = {
+let cvId = <?php echo $cv_id; ?>;
+let cvData = <?php echo $cv_content; ?> || {
     name: '',
     job_title: '',
     email: '',
@@ -111,11 +121,31 @@ let cvData = {
     sections: []
 };
 
-let cvSettings = {
+let cvSettings = <?php echo $cv_settings; ?> || {
     lang: 'ar',
     template: 'modern',
     color: '#F63049'
 };
+
+// Sync UI with loaded data
+window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('cv-lang').value = cvSettings.lang;
+    document.getElementById('cv-name').value = cvData.name || '';
+    document.getElementById('cv-job').value = cvData.job_title || '';
+    document.getElementById('cv-email').value = cvData.email || '';
+    document.getElementById('cv-phone').value = cvData.phone || '';
+    document.getElementById('cv-summary').value = cvData.summary || '';
+    document.getElementById('cv-theme-color').value = cvSettings.color || '#F63049';
+
+    document.querySelectorAll('.tpl-card').forEach(c => {
+        if (c.innerText.toLowerCase() === cvSettings.template) c.classList.add('active');
+        else c.classList.remove('active');
+    });
+
+    renderSectionsEditor();
+    renderPreview();
+    initSortable();
+});
 
 function switchEditorTab(tab, btn) {
     document.querySelectorAll('.editor-tab-btn').forEach(b => b.classList.remove('active'));
@@ -141,27 +171,106 @@ function updateCVLanguage(lang) {
     renderPreview();
 }
 
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function renderPreview() {
-    // Ajax call to render template or client-side rendering
-    // For now, let's simulate a basic structure
     const preview = document.getElementById('cv-preview-page');
     const dir = cvSettings.lang === 'ar' ? 'rtl' : 'ltr';
     preview.setAttribute('dir', dir);
 
+    let sectionsHtml = '';
+    cvData.sections.forEach(s => {
+        sectionsHtml += `
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: ${cvSettings.color}; border-bottom: 2px solid ${cvSettings.color}33; padding-bottom: 5px; margin-bottom: 10px; font-size: 14pt;">${escapeHtml(s.title)}</h3>
+                <div style="font-size: 10pt; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(s.content)}</div>
+            </div>
+        `;
+    });
+
     preview.innerHTML = `
-        <div style="border-bottom: 3px solid ${cvSettings.color}; padding-bottom: 20px; margin-bottom: 30px;">
-            <h1 style="margin: 0; color: ${cvSettings.color}; font-size: 32pt;">${cvData.name || 'الاسم الكامل'}</h1>
-            <h2 style="margin: 5px 0 0 0; color: #444; font-size: 18pt;">${cvData.job_title || 'المسمى الوظيفي'}</h2>
-            <div style="margin-top: 15px; display: flex; gap: 20px; font-size: 10pt; color: #666;">
-                <span>${cvData.email}</span>
-                <span>${cvData.phone}</span>
+        <div style="border-bottom: 4px solid ${cvSettings.color}; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="margin: 0; color: ${cvSettings.color}; font-size: 28pt; font-weight: 800;">${escapeHtml(cvData.name) || (cvSettings.lang === 'ar' ? 'الاسم الكامل' : 'Full Name')}</h1>
+            <h2 style="margin: 5px 0 0 0; color: #4a5568; font-size: 16pt; font-weight: 600;">${escapeHtml(cvData.job_title) || (cvSettings.lang === 'ar' ? 'المسمى الوظيفي' : 'Job Title')}</h2>
+            <div style="margin-top: 15px; display: flex; gap: 20px; font-size: 10pt; color: #718096; font-weight: 500;">
+                ${cvData.email ? `<span><span class="dashicons dashicons-email" style="font-size:14px; width:14px; height:14px;"></span> ${escapeHtml(cvData.email)}</span>` : ''}
+                ${cvData.phone ? `<span><span class="dashicons dashicons-phone" style="font-size:14px; width:14px; height:14px;"></span> ${escapeHtml(cvData.phone)}</span>` : ''}
             </div>
         </div>
         <div style="margin-bottom: 30px;">
-            <h3 style="color: ${cvSettings.color}; border-bottom: 1px solid #eee; padding-bottom: 5px;">${cvSettings.lang === 'ar' ? 'الخلاصة المهنية' : 'Professional Summary'}</h3>
-            <p style="line-height: 1.6; font-size: 11pt;">${cvData.summary}</p>
+            <h3 style="color: ${cvSettings.color}; border-bottom: 2px solid ${cvSettings.color}33; padding-bottom: 5px; margin-bottom: 10px; font-size: 14pt;">${cvSettings.lang === 'ar' ? 'الخلاصة المهنية' : 'Professional Summary'}</h3>
+            <p style="line-height: 1.6; font-size: 10.5pt; color: #2d3748;">${escapeHtml(cvData.summary)}</p>
         </div>
+        ${sectionsHtml}
     `;
+}
+
+function renderSectionsEditor() {
+    const list = document.getElementById('cv-sections-list');
+    if (!list) return;
+    list.innerHTML = cvData.sections.map((s, idx) => `
+        <div class="cv-section-item" data-id="${s.id}" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span class="section-drag-handle" style="cursor: move; color: #94a3b8;"><span class="dashicons dashicons-move"></span></span>
+                <button onclick="removeCVSection(${s.id})" style="background:none; border:none; color:#e53e3e; cursor:pointer;"><span class="dashicons dashicons-trash"></span></button>
+            </div>
+            <input type="text" class="workedia-input" value="${escapeHtml(s.title)}" oninput="updateSection(${s.id}, 'title', this.value)" style="margin-bottom: 10px; font-weight: 800;" placeholder="عنوان القسم (مثلاً: الخبرات)">
+            <textarea class="workedia-textarea" rows="4" oninput="updateSection(${s.id}, 'content', this.value)" placeholder="محتوى القسم...">${escapeHtml(s.content)}</textarea>
+        </div>
+    `).join('');
+}
+
+function addCVSection() {
+    const id = Date.now();
+    cvData.sections.push({ id, title: '', content: '' });
+    renderSectionsEditor();
+    renderPreview();
+    initSortable();
+}
+
+function removeCVSection(id) {
+    cvData.sections = cvData.sections.filter(s => s.id !== id);
+    renderSectionsEditor();
+    renderPreview();
+    initSortable();
+}
+
+function updateSection(id, key, val) {
+    const s = cvData.sections.find(sec => sec.id === id);
+    if (s) s[key] = val;
+    renderPreview();
+}
+
+function selectTemplate(tpl, el) {
+    cvSettings.template = tpl;
+    document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderPreview();
+}
+
+function workediaSaveCV() {
+    const fd = new FormData();
+    fd.append('action', 'workedia_save_cv');
+    if (cvId) fd.append('id', cvId);
+    fd.append('title', cvData.name || 'My CV');
+    fd.append('language', cvSettings.lang);
+    fd.append('template', cvSettings.template);
+    fd.append('content', JSON.stringify(cvData));
+    fd.append('settings', JSON.stringify(cvSettings));
+
+    workediaShowNotification('جاري حفظ السيرة الذاتية...');
+
+    fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+        if (res.success) {
+            workediaShowNotification('تم حفظ السيرة الذاتية بنجاح');
+            cvId = res.data;
+        } else alert(res.data);
+    });
 }
 
 function initSortable() {
@@ -178,7 +287,4 @@ function initSortable() {
     });
 }
 
-// Initial render
-renderPreview();
-window.onload = initSortable;
 </script>
