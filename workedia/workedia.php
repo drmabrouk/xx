@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Workedia
  * Description: نظام شامل لإدارة الأعضاء، الخدمات الرقمية، واستطلاعات الرأي الخاصة بـ Workedia.
- * Version: 97.5.0
+ * Version: 97.6.0
  * Author: Workedia
  * Language: ar
  * Text Domain: workedia
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WORKEDIA_VERSION', '97.5.0');
+define('WORKEDIA_VERSION', '97.6.0');
 define('WORKEDIA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WORKEDIA_PLUGIN_URL', plugin_dir_url(__FILE__));
 

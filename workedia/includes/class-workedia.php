@@ -99,6 +99,19 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_get_cv_versions', $plugin_public, 'ajax_get_cv_versions');
         $this->loader->add_action('wp_ajax_workedia_restore_cv_version', $plugin_public, 'ajax_restore_cv_version');
 
+        // Reference Manager AJAX
+        $this->loader->add_action('wp_ajax_workedia_save_research_project', $plugin_public, 'ajax_save_research_project');
+        $this->loader->add_action('wp_ajax_workedia_delete_research_project', $plugin_public, 'ajax_delete_research_project');
+        $this->loader->add_action('wp_ajax_workedia_save_reference', $plugin_public, 'ajax_save_reference');
+        $this->loader->add_action('wp_ajax_workedia_delete_reference', $plugin_public, 'ajax_delete_reference');
+        $this->loader->add_action('wp_ajax_workedia_save_research_paragraph', $plugin_public, 'ajax_save_research_paragraph');
+        $this->loader->add_action('wp_ajax_workedia_delete_research_paragraph', $plugin_public, 'ajax_delete_research_paragraph');
+        $this->loader->add_action('wp_ajax_workedia_update_paragraph_order', $plugin_public, 'ajax_update_paragraph_order');
+        $this->loader->add_action('wp_ajax_workedia_link_ref_to_para', $plugin_public, 'ajax_link_ref_to_para');
+        $this->loader->add_action('wp_ajax_workedia_smart_search_refs', $plugin_public, 'ajax_smart_search_refs');
+        $this->loader->add_action('wp_ajax_workedia_export_research_word', $plugin_public, 'ajax_export_research_word');
+        $this->loader->add_action('wp_ajax_workedia_export_research_bibtex', $plugin_public, 'ajax_export_research_bibtex');
+
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');
         $this->loader->add_action('wp_ajax_workedia_add_member_ajax', $plugin_public, 'ajax_add_member');

@@ -394,7 +394,7 @@ if ($member_mode) {
     }
 }
 
-if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder', 'bmi', 'documents', 'cv-builder'])) {
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder', 'bmi', 'documents', 'cv-builder', 'reference-manager', 'reference-library', 'reference-writer'])) {
     $active_tab = 'app-launcher';
 }
 
@@ -603,6 +603,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <a href="<?php echo add_query_arg('workedia_tab', 'cv-builder'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-id-alt"></span> <?php echo $labels['tab_cv_builder']; ?></a>
                     </li>
 
+                    <li class="workedia-sidebar-item <?php echo in_array($active_tab, ['reference-manager', 'reference-library', 'reference-writer']) ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'reference-manager'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-welcome-learn-more"></span> <?php echo $labels['tab_reference_manager']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -685,6 +689,17 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-cv-builder.php';
                     break;
 
+                case 'reference-manager':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-reference-manager.php';
+                    break;
+
+                case 'reference-library':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-reference-library.php';
+                    break;
+
+                case 'reference-writer':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-reference-writer.php';
+                    break;
 
                 case 'member-profile':
                 case 'my-profile':
