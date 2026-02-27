@@ -51,29 +51,48 @@
         </div>
 
         <!-- Sidebar: History & Tools -->
-        <div class="calc-sidebar" style="background: #fff; border-radius: 24px; padding: 25px; border: 1px solid var(--workedia-border-color); display: flex; flex-direction: column;">
-            <div id="calc-history-panel" style="flex: 1;">
-                <h4 style="margin: 0 0 20px 0; direction: rtl; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">السجل</h4>
-                <div id="calc-history-list" style="direction: rtl; font-family: monospace; font-size: 14px; max-height: 400px; overflow-y: auto;">
+        <div class="calc-sidebar" style="background: #fff; border-radius: 24px; padding: 25px; border: 1px solid var(--workedia-border-color); display: flex; flex-direction: column; overflow: hidden;">
+            <div id="calc-history-panel" style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; direction: rtl; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                    <h4 style="margin: 0; font-weight: 800;">السجل</h4>
+                    <button onclick="clearCalcHistory()" style="background: none; border: none; color: #e53e3e; font-size: 11px; cursor: pointer; font-weight: 700; font-family: 'Rubik';">مسح الكل</button>
+                </div>
+                <div id="calc-history-list" style="direction: rtl; font-family: monospace; font-size: 14px; flex: 1; overflow-y: auto;">
                     <div style="color: #94a3b8; text-align: center; margin-top: 50px;">لا توجد عمليات مسبقة</div>
                 </div>
             </div>
 
             <!-- Unit Converter (Hidden by default) -->
-            <div id="calc-converter-panel" style="display: none; direction: rtl;">
-                <h4 id="converter-title" style="margin: 0 0 20px 0; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">تحويل الوحدات</h4>
-                <div class="workedia-form-group">
-                    <label class="workedia-label">من:</label>
-                    <input type="number" id="convert-from-val" class="workedia-input" oninput="runConversion()">
-                    <select id="convert-from-unit" class="workedia-select" style="margin-top: 5px;" onchange="runConversion()"></select>
+            <div id="calc-converter-panel" style="display: none; direction: rtl; animation: workediaSlideUp 0.3s ease;">
+                <h4 id="converter-title" style="margin: 0 0 20px 0; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; color: var(--workedia-primary-color);">تحويل الوحدات</h4>
+
+                <div id="converter-category-selector" style="display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <!-- Dynamically populated -->
                 </div>
-                <div style="text-align: center; margin: 10px 0; color: var(--workedia-primary-color);"><span class="dashicons dashicons-arrow-down-alt2"></span></div>
-                <div class="workedia-form-group">
-                    <label class="workedia-label">إلى:</label>
-                    <input type="text" id="convert-to-val" class="workedia-input" readonly>
-                    <select id="convert-to-unit" class="workedia-select" style="margin-top: 5px;" onchange="runConversion()"></select>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #edf2f7; margin-bottom: 15px;">
+                    <div class="workedia-form-group" style="margin-bottom: 10px;">
+                        <label class="workedia-label" style="font-size: 11px;">القيمة المصدر:</label>
+                        <input type="number" id="convert-from-val" class="workedia-input" oninput="runConversion()" style="font-family: monospace; font-weight: 700;">
+                        <select id="convert-from-unit" class="workedia-select" style="margin-top: 5px; font-size: 12px;" onchange="runConversion()"></select>
+                    </div>
+
+                    <div style="text-align: center; margin: 10px 0;">
+                        <div style="width: 30px; height: 30px; background: white; border: 1px solid #e2e8f0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--workedia-primary-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <span class="dashicons dashicons-arrow-down-alt2"></span>
+                        </div>
+                    </div>
+
+                    <div class="workedia-form-group" style="margin-bottom: 0;">
+                        <label class="workedia-label" style="font-size: 11px;">النتيجة المحولة:</label>
+                        <input type="text" id="convert-to-val" class="workedia-input" readonly style="font-family: monospace; font-weight: 700; background: #fff; color: var(--workedia-primary-color);">
+                        <select id="convert-to-unit" class="workedia-select" style="margin-top: 5px; font-size: 12px;" onchange="runConversion()"></select>
+                    </div>
                 </div>
-                <button class="workedia-btn workedia-btn-outline" style="width: 100%;" onclick="toggleConverter(null)">العودة للسجل</button>
+
+                <button class="workedia-btn workedia-btn-outline" style="width: 100%; font-size: 12px; height: 35px;" onclick="toggleConverter(null)">
+                    <span class="dashicons dashicons-arrow-right-alt2" style="font-size: 16px;"></span> العودة لسجل العمليات
+                </button>
             </div>
         </div>
     </div>
@@ -144,31 +163,53 @@ function calcAction(type, val) {
 
 function addToHistory(item) {
     calcState.history.unshift(item);
+    renderHistory();
+}
+
+function clearCalcHistory() {
+    calcState.history = [];
+    renderHistory();
+}
+
+function renderHistory() {
     const list = document.getElementById('calc-history-list');
+    if (calcState.history.length === 0) {
+        list.innerHTML = '<div style="color: #94a3b8; text-align: center; margin-top: 50px;">لا توجد عمليات مسبقة</div>';
+        return;
+    }
     list.innerHTML = calcState.history.map(h => `<div class="history-item" onclick="calcState.display='${h.split('=')[1].trim()}';updateDisplay()">${h}</div>`).join('');
 }
 
 const unitData = {
     units: {
         title: 'تحويل الوحدات',
+        color: '#3182CE',
         categories: {
-            'الطول': { 'متر': 1, 'كيلومتر': 0.001, 'سنتيمتر': 100, 'بوصة': 39.3701, 'قدم': 3.28084 },
-            'الوزن': { 'جرام': 1000, 'كيلوجرام': 1, 'باوند': 2.20462, 'أوقية': 35.274 }
+            'الطول': { 'متر': 1, 'كيلومتر': 0.001, 'سنتيمتر': 100, 'بوصة': 39.3701, 'قدم': 3.28084, 'ياردة': 1.09361 },
+            'الوزن': { 'جرام': 1000, 'كيلوجرام': 1, 'باوند': 2.20462, 'أوقية': 35.274, 'طن': 0.001 },
+            'المساحة': { 'متر مربع': 1, 'فدان': 0.000238, 'هكتار': 0.0001, 'سنت': 0.01 }
         }
     },
     finance: {
         title: 'أدوات مالية',
+        color: '#38A169',
         categories: {
-            'الضريبة': { 'قبل الضريبة': 1, 'ضريبة 14%': 1.14, 'ضريبة 15%': 1.15, 'ضريبة 5%': 1.05 }
+            'الضريبة': { 'المبلغ الصافي': 1, 'شامل ضريبة 14%': 1.14, 'شامل ضريبة 15%': 1.15, 'شامل ضريبة 5%': 1.05 },
+            'القروض': { 'أصل المبلغ': 1, '+ فوائد 10%': 1.1, '+ فوائد 20%': 1.2 }
         }
     },
     math: {
         title: 'وظائف رياضية',
+        color: '#805AD5',
         categories: {
-            'النسبة': { 'القيمة الأصلية': 1, 'خصم 10%': 0.9, 'خصم 20%': 0.8, 'خصم 50%': 0.5 }
+            'النسبة المئوية': { 'القيمة الكاملة': 1, 'بعد خصم 10%': 0.9, 'بعد خصم 25%': 0.75, 'بعد خصم 50%': 0.5, 'زيادة 10%': 1.1, 'زيادة 50%': 1.5 },
+            'الكسور': { 'واحد صحيح': 1, 'النصف (1/2)': 0.5, 'الربع (1/4)': 0.25, 'الثلث (1/3)': 0.333 }
         }
     }
 };
+
+let currentMode = null;
+let currentCategory = null;
 
 function toggleConverter(mode) {
     const historyPanel = document.getElementById('calc-history-panel');
@@ -180,22 +221,40 @@ function toggleConverter(mode) {
         return;
     }
 
+    currentMode = mode;
     historyPanel.style.display = 'none';
     converterPanel.style.display = 'block';
 
     const data = unitData[mode];
-    document.getElementById('converter-title').innerText = data.title;
+    const titleEl = document.getElementById('converter-title');
+    titleEl.innerText = data.title;
+    titleEl.style.color = data.color;
 
+    const catSelector = document.getElementById('converter-category-selector');
+    let catsHtml = '';
+    let firstCat = null;
+
+    for (let cat in data.categories) {
+        if (!firstCat) firstCat = cat;
+        catsHtml += `<button class="calc-cat-btn" onclick="selectCategory('${cat}')">${cat}</button>`;
+    }
+    catSelector.innerHTML = catsHtml;
+    selectCategory(firstCat);
+}
+
+function selectCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.calc-cat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText === cat);
+    });
+
+    const data = unitData[currentMode].categories[cat];
     const fromSelect = document.getElementById('convert-from-unit');
     const toSelect = document.getElementById('convert-to-unit');
 
     let options = '';
-    for (let cat in data.categories) {
-        options += `<optgroup label="${cat}">`;
-        for (let unit in data.categories[cat]) {
-            options += `<option value="${data.categories[cat][unit]}">${unit}</option>`;
-        }
-        options += `</optgroup>`;
+    for (let unit in data) {
+        options += `<option value="${data[unit]}">${unit}</option>`;
     }
 
     fromSelect.innerHTML = options;

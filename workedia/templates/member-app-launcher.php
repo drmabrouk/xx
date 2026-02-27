@@ -79,6 +79,15 @@
             <h3>حاسبة BMI</h3>
             <p>متابعة مؤشر كتلة الجسم والصحة</p>
         </a>
+
+        <!-- Documents App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'documents'); ?>" class="app-card">
+            <div class="app-icon" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);">
+                <span class="dashicons dashicons-portfolio"></span>
+            </div>
+            <h3>أرشيف الوثائق</h3>
+            <p>حفظ وإدارة مستنداتك الهامة</p>
+        </a>
     </div>
 </div>
 

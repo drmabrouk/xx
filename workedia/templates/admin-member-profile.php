@@ -12,6 +12,7 @@ $user = wp_get_current_user();
 $is_sys_manager = in_array('administrator', (array)$user->roles);
 $is_administrator = in_array('administrator', (array)$user->roles);
 $is_subscriber = in_array('subscriber', (array)$user->roles);
+$is_member = $is_subscriber;
 
 // IDOR CHECK: Restricted users can only see their own profile
 if ($is_subscriber && !current_user_can('manage_options')) {
@@ -22,11 +23,11 @@ if ($is_subscriber && !current_user_can('manage_options')) {
 }
 
 $statuses = Workedia_Settings::get_membership_statuses();
-$member_mode = isset($member_mode) ? $member_mode : false; // Check if passed from parent
+$member_mode_active = isset($member_mode) && $member_mode === true;
 ?>
 
-<div class="workedia-member-profile-view <?php echo $member_mode ? 'workedia-app-container' : ''; ?>" dir="rtl">
-    <?php if (!$member_mode): ?>
+<div class="workedia-member-profile-view <?php echo $member_mode_active ? 'workedia-app-container' : ''; ?>" dir="rtl">
+    <?php if (!$member_mode_active): ?>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--workedia-border-color); box-shadow: var(--workedia-shadow);">
         <div style="display: flex; align-items: center; gap: 20px;">
             <div style="position: relative;">
@@ -43,12 +44,12 @@ $member_mode = isset($member_mode) ? $member_mode : false; // Check if passed fr
                 <input type="file" id="member-photo-input" style="display:none;" accept="image/*" onchange="workediaUploadMemberPhoto(<?php echo $member->id; ?>)">
             </div>
             <div>
-                <h2 style="margin:0; color: var(--workedia-dark-color);"><?php echo esc_html($member->first_name . ' ' . $member->last_name); ?></h2>
+                <h2 style="margin:0; color: var(--workedia-dark-color); border: none; padding: 0;"><?php echo esc_html($member->first_name . ' ' . $member->last_name); ?></h2>
             </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-            <?php if (!$is_member): ?>
-                <button onclick="workediaEditMember(JSON.parse(this.dataset.member))" data-member='<?php echo esc_attr(wp_json_encode($member)); ?>' class="workedia-btn" style="background: #3182ce; width: auto;"><span class="dashicons dashicons-edit"></span> تعديل البيانات</button>
+            <?php if (!$is_member || $member->wp_user_id == get_current_user_id()): ?>
+                <button onclick='workediaEditMember(JSON.parse(this.dataset.member))' data-member='<?php echo esc_attr(wp_json_encode($member)); ?>' class="workedia-btn" style="background: #3182ce; width: auto;"><span class="dashicons dashicons-edit"></span> تعديل البيانات</button>
             <?php endif; ?>
 
             <?php if (!$is_subscriber || current_user_can('manage_options')): ?>
@@ -61,10 +62,9 @@ $member_mode = isset($member_mode) ? $member_mode : false; // Check if passed fr
     </div>
 
     <!-- Profile Tabs -->
-    <?php if (!$member_mode): ?>
     <div class="workedia-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
         <button class="workedia-tab-btn workedia-active" onclick="workediaOpenInternalTab('profile-info', this)"><span class="dashicons dashicons-admin-users"></span> بيانات العضوية</button>
-        <button class="workedia-tab-btn" onclick="workediaOpenInternalTab('member-chat', this); setTimeout(() => selectConversation(<?php echo $member->id; ?>, '<?php echo esc_js($member->first_name . ' ' . $member->last_name); ?>', <?php echo $member->wp_user_id ?: 0; ?>), 100);"><span class="dashicons dashicons-email"></span> المراسلات والشكاوى</button>
+        <button class="workedia-tab-btn" onclick="workediaOpenInternalTab('member-chat', this)"><span class="dashicons dashicons-email"></span> المراسلات والشكاوى</button>
     </div>
     <?php endif; ?>
 
@@ -73,56 +73,49 @@ $member_mode = isset($member_mode) ? $member_mode : false; // Check if passed fr
             <div style="display: flex; flex-direction: column; gap: 30px;">
                 <!-- Basic Info -->
                 <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--workedia-border-color); box-shadow: var(--workedia-shadow);">
-                <h3 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">البيانات الأساسية</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label class="workedia-label">الاسم الأول:</label> <div class="workedia-value"><?php echo esc_html($member->first_name); ?></div></div>
-                    <div><label class="workedia-label">اسم العائلة:</label> <div class="workedia-value"><?php echo esc_html($member->last_name); ?></div></div>
-                    <div><label class="workedia-label">اسم المستخدم:</label> <div class="workedia-value"><?php echo esc_html($member->username); ?></div></div>
-                    <div><label class="workedia-label">كود العضوية:</label> <div class="workedia-value"><?php echo esc_html($member->membership_number); ?></div></div>
-                    <div><label class="workedia-label">رقم الهاتف:</label> <div class="workedia-value"><?php echo esc_html($member->phone); ?></div></div>
-                    <div><label class="workedia-label">البريد الإلكتروني:</label> <div class="workedia-value"><?php echo esc_html($member->email); ?></div></div>
-                </div>
+                    <h3 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">البيانات الأساسية</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div><label class="workedia-label">الاسم الأول:</label> <div class="workedia-value"><?php echo esc_html($member->first_name); ?></div></div>
+                        <div><label class="workedia-label">اسم العائلة:</label> <div class="workedia-value"><?php echo esc_html($member->last_name); ?></div></div>
+                        <div><label class="workedia-label">اسم المستخدم:</label> <div class="workedia-value"><?php echo esc_html($member->username); ?></div></div>
+                        <div><label class="workedia-label">كود العضوية:</label> <div class="workedia-value"><?php echo esc_html($member->membership_number); ?></div></div>
+                        <div><label class="workedia-label">رقم الهاتف:</label> <div class="workedia-value"><?php echo esc_html($member->phone); ?></div></div>
+                        <div><label class="workedia-label">البريد الإلكتروني:</label> <div class="workedia-value"><?php echo esc_html($member->email); ?></div></div>
+                    </div>
 
-
-                <h4 style="margin: 20px 0 10px 0; color: var(--workedia-primary-color);">بيانات السكن والاتصال</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label class="workedia-label">المدينة:</label> <div class="workedia-value"><?php echo esc_html($member->residence_city); ?></div></div>
-                    <div style="grid-column: span 2;"><label class="workedia-label">العنوان (الشارع):</label> <div class="workedia-value"><?php echo esc_html($member->residence_street); ?></div></div>
-                    <?php if (!$member_mode && $member->wp_user_id): ?>
-                        <?php $temp_pass = get_user_meta($member->wp_user_id, 'workedia_temp_pass', true); if ($temp_pass): ?>
-                            <div style="grid-column: span 2; background: #fffaf0; padding: 15px; border-radius: 8px; border: 1px solid #feebc8; margin-top: 10px;">
-                                <label class="workedia-label" style="color: #744210;">كلمة المرور المؤقتة للنظام:</label>
-                                <div style="font-family: monospace; font-size: 1.2em; font-weight: 700; color: #975a16;"><?php echo esc_html($temp_pass); ?></div>
-                                <small style="color: #975a16;">* يرجى تزويد العضو بهذه الكلمة ليتمكن من الدخول لأول مرة.</small>
-                            </div>
+                    <h4 style="margin: 20px 0 10px 0; color: var(--workedia-primary-color);">بيانات السكن والاتصال</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div><label class="workedia-label">المدينة:</label> <div class="workedia-value"><?php echo esc_html($member->residence_city); ?></div></div>
+                        <div style="grid-column: span 2;"><label class="workedia-label">العنوان (الشارع):</label> <div class="workedia-value"><?php echo esc_html($member->residence_street); ?></div></div>
+                        <?php if (!$member_mode_active && $member->wp_user_id): ?>
+                            <?php $temp_pass = get_user_meta($member->wp_user_id, 'workedia_temp_pass', true); if ($temp_pass): ?>
+                                <div style="grid-column: span 2; background: #fffaf0; padding: 15px; border-radius: 8px; border: 1px solid #feebc8; margin-top: 10px;">
+                                    <label class="workedia-label" style="color: #744210;">كلمة المرور المؤقتة للنظام:</label>
+                                    <div style="font-family: monospace; font-size: 1.2em; font-weight: 700; color: #975a16;"><?php echo esc_html($temp_pass); ?></div>
+                                    <small style="color: #975a16;">* يرجى تزويد العضو بهذه الكلمة ليتمكن من الدخول لأول مرة.</small>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
+                    </div>
+
+                    <?php if ($member_mode_active): ?>
+                    <div style="margin-top: 30px; text-align: center;">
+                        <button onclick='workediaEditMember(JSON.parse(this.dataset.member))' data-member='<?php echo esc_attr(wp_json_encode($member)); ?>' class="workedia-btn" style="width: auto; height: 50px; padding: 0 40px; font-weight: 800; font-size: 1.1em;">
+                            تحديث الملف الشخصي
+                        </button>
+                    </div>
                     <?php endif; ?>
                 </div>
-
-                <?php if ($member_mode): ?>
-                <div style="margin-top: 30px; text-align: center;">
-                    <button onclick="workediaEditMember(<?php echo esc_attr(wp_json_encode($member)); ?>)" class="workedia-btn" style="width: auto; height: 50px; padding: 0 40px; font-weight: 800; font-size: 1.1em;">
-                        تحديث الملف الشخصي
-                    </button>
-                </div>
-                <?php endif; ?>
             </div>
-
         </div>
     </div>
 
     <!-- Communication Tab -->
-    <?php if (!$member_mode): ?>
     <div id="member-chat" class="workedia-internal-tab" style="display: none;">
         <div style="height: 600px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff;">
-            <?php
-            // Reuse messaging-center but in a compact way
-            include WORKEDIA_PLUGIN_DIR . 'templates/messaging-center.php';
-            ?>
+            <?php include WORKEDIA_PLUGIN_DIR . 'templates/messaging-center.php'; ?>
         </div>
     </div>
-
-    <?php endif; ?>
 
     <!-- Edit Member Modal -->
     <div id="edit-member-modal" class="workedia-modal-overlay">
@@ -239,7 +232,7 @@ document.getElementById('edit-member-form').onsubmit = function(e) {
 
     // Permission Check: Members can only update their own profile
     const memberId = this.elements['member_id'].value;
-    const currentMemberId = <?php echo $member_id; ?>;
+    const currentMemberId = <?php echo (int)$member_id; ?>;
     const isSubscriber = <?php echo $is_subscriber ? 'true' : 'false'; ?>;
 
     if (isSubscriber && memberId != currentMemberId) {

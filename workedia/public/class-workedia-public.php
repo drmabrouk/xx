@@ -2037,6 +2037,35 @@ class Workedia_Public {
         wp_die();
     }
 
+    // Document Archive AJAX Handlers
+    public function ajax_upload_doc() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_docs_action', 'nonce');
+
+        $res = Workedia_Documents::upload_document($_POST, $_FILES['doc_file']);
+        if (is_wp_error($res)) wp_send_json_error($res->get_error_message());
+        elseif ($res) wp_send_json_success();
+        else wp_send_json_error('Failed to upload document');
+    }
+
+    public function ajax_delete_doc() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_docs_action', 'nonce');
+        if (Workedia_Documents::delete_document($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete document');
+    }
+
+    public function ajax_get_docs_list() {
+        if (!is_user_logged_in()) wp_die();
+        $args = [
+            'search' => $_GET['search'] ?? '',
+            'category' => $_GET['category'] ?? ''
+        ];
+        $docs = Workedia_Documents::get_documents(get_current_user_id(), $args);
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-document-archive-list.php';
+        wp_die();
+    }
+
     public function inject_global_alerts() {
         if (!is_user_logged_in()) return;
 
