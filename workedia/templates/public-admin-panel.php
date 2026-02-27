@@ -545,6 +545,14 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     </li>
                 <?php endif; ?>
 
+                <li class="workedia-sidebar-item <?php echo $active_tab == 'notebook' ? 'workedia-active' : ''; ?>">
+                    <a href="<?php echo add_query_arg('workedia_tab', 'notebook'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-edit"></span> <?php echo $labels['tab_notebook']; ?></a>
+                </li>
+
+                <li class="workedia-sidebar-item <?php echo $active_tab == 'task-list' ? 'workedia-active' : ''; ?>">
+                    <a href="<?php echo add_query_arg('workedia_tab', 'task-list'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-editor-ul"></span> <?php echo $labels['tab_task_list']; ?></a>
+                </li>
+
                 <?php if (!$is_restricted && ($is_admin || $is_sys_admin || $is_administrator)): ?>
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
@@ -585,6 +593,14 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'messaging':
                     include WORKEDIA_PLUGIN_DIR . 'templates/messaging-center.php';
+                    break;
+
+                case 'notebook':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-notebook.php';
+                    break;
+
+                case 'task-list':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list.php';
                     break;
 
 

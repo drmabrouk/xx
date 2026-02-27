@@ -192,6 +192,59 @@ class Workedia_Activator {
             KEY user_id (user_id)
         ) $charset_collate;\n";
 
+        // Notebook Tables
+        $table_name = $wpdb->prefix . 'workedia_notes';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255),
+            content text,
+            color varchar(20) DEFAULT '#ffffff',
+            tags text,
+            image_url text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_note_shares';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            note_id mediumint(9) NOT NULL,
+            user_id bigint(20) NOT NULL,
+            PRIMARY KEY  (id),
+            KEY note_id (note_id),
+            KEY user_id (user_id)
+        ) $charset_collate;\n";
+
+        // Task List Tables
+        $table_name = $wpdb->prefix . 'workedia_tasks';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255) NOT NULL,
+            description text,
+            deadline datetime,
+            reminder_at datetime,
+            status varchar(20) DEFAULT 'pending',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_subtasks';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            task_id mediumint(9) NOT NULL,
+            title varchar(255) NOT NULL,
+            is_completed tinyint(1) DEFAULT 0,
+            sort_order int DEFAULT 0,
+            PRIMARY KEY  (id),
+            KEY task_id (task_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
