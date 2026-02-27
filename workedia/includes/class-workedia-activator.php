@@ -247,6 +247,34 @@ class Workedia_Activator {
             KEY task_id (task_id)
         ) $charset_collate;\n";
 
+        // Form Builder Tables
+        $table_name = $wpdb->prefix . 'workedia_forms';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255) NOT NULL,
+            description text,
+            fields longtext NOT NULL,
+            settings longtext,
+            public_token varchar(100),
+            status varchar(20) DEFAULT 'active',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            UNIQUE KEY public_token (public_token)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_form_submissions';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            form_id mediumint(9) NOT NULL,
+            user_id bigint(20),
+            submission_data longtext NOT NULL,
+            submitted_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY form_id (form_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
@@ -496,6 +524,11 @@ class Workedia_Activator {
                 'title' => 'أخبار ومقالات',
                 'content' => '[workedia_blog]',
                 'shortcode' => 'workedia_blog'
+            ),
+            'forms' => array(
+                'title' => 'عرض النموذج',
+                'content' => '[workedia_form_view]',
+                'shortcode' => 'workedia_form_view'
             ),
             'workedia-register' => array(
                 'title' => 'إنشاء حساب جديد',

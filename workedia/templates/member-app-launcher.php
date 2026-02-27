@@ -61,6 +61,15 @@
             <h3>الحاسبة المتطورة</h3>
             <p>أدوات مالية وتحويلات احترافية</p>
         </a>
+
+        <!-- Form Builder App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'form-builder'); ?>" class="app-card">
+            <div class="app-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <span class="dashicons dashicons-forms"></span>
+            </div>
+            <h3>منشئ النماذج</h3>
+            <p>إنشاء استبيانات وجمع البيانات</p>
+        </a>
     </div>
 </div>
 

@@ -4,15 +4,15 @@
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">الحاسبة المتطورة</h2>
     </div>
 
-    <div class="calc-layout" style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;">
+    <div class="calc-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 20px; max-width: 900px; margin: 0 auto;">
         <!-- Calculator Body -->
-        <div class="calc-main" style="background: #f8fafc; border-radius: 32px; padding: 35px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); border: 1px solid #fff;">
-            <div class="calc-display" style="background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; text-align: right; min-height: 140px; display: flex; flex-direction: column; justify-content: flex-end; border: 1px solid #edf2f7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                <div id="calc-expression" style="color: #a0aec0; font-size: 1.1em; margin-bottom: 8px; font-family: monospace; letter-spacing: 1px;"></div>
-                <div id="calc-result" style="color: #fff; font-size: 2.5em; font-weight: 700; overflow: hidden; font-family: monospace;">0</div>
+        <div class="calc-main" style="background: #ffffff; border-radius: 24px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+            <div class="calc-display" style="background: #f8fafc; border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: right; min-height: 100px; display: flex; flex-direction: column; justify-content: flex-end; border: 1px solid #edf2f7;">
+                <div id="calc-expression" style="color: #94a3b8; font-size: 1em; margin-bottom: 5px; font-family: monospace; letter-spacing: 1px;"></div>
+                <div id="calc-result" style="color: #1a202c; font-size: 2.2em; font-weight: 800; overflow: hidden; font-family: monospace;">0</div>
             </div>
 
-            <div class="calc-buttons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+            <div class="calc-buttons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                 <!-- Row 1: Advanced Functions -->
                 <button class="calc-btn func" onclick="calcAction('clear')">AC</button>
                 <button class="calc-btn func" onclick="calcAction('delete')">DEL</button>
@@ -81,17 +81,16 @@
 
 <style>
 .calc-btn {
-    height: 60px; background: white; border: 1px solid #edf2f7; border-radius: 18px;
-    color: #1a202c; font-size: 1.3em; font-weight: 700; cursor: pointer; transition: all 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    height: 52px; background: white; border: 1px solid #e2e8f0; border-radius: 14px;
+    color: #1a202c; font-size: 1.2em; font-weight: 700; cursor: pointer; transition: all 0.2s;
 }
-.calc-btn:hover { background: #f7fafc; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
-.calc-btn.op { background: #fff5f5; color: #e53e3e; font-size: 1.6em; border-color: #feb2b2; }
-.calc-btn.func { background: #ebf8ff; color: #3182ce; border-color: #bee3f8; }
+.calc-btn:hover { background: #f8fafc; border-color: var(--workedia-primary-color); color: var(--workedia-primary-color); }
+.calc-btn.op { background: #fcfcfc; color: var(--workedia-primary-color); font-size: 1.4em; }
+.calc-btn.func { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
 
 .calc-tool-btn {
-    background: white; border: 1px solid #e2e8f0; padding: 12px;
-    border-radius: 12px; color: #4a5568; cursor: pointer; transition: 0.2s; font-size: 13px;
+    background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px;
+    border-radius: 10px; color: #64748b; cursor: pointer; transition: 0.2s; font-size: 12px;
     font-weight: 700; font-family: 'Rubik', sans-serif;
 }
 .calc-tool-btn:hover { background: #fff; color: var(--workedia-dark-color); }
