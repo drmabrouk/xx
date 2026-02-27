@@ -68,11 +68,27 @@ if (!class_exists('Workedia_TaskList')) {
 
         public static function toggle_subtask($subtask_id, $is_completed) {
             global $wpdb;
+            $user_id = get_current_user_id();
+
+            // Security Check: Verify task ownership via subtask
+            $task_owner = $wpdb->get_var($wpdb->prepare(
+                "SELECT t.user_id FROM {$wpdb->prefix}workedia_tasks t
+                 JOIN {$wpdb->prefix}workedia_subtasks s ON t.id = s.task_id
+                 WHERE s.id = %d", $subtask_id
+            ));
+            if ($task_owner != $user_id) return false;
+
             return $wpdb->update($wpdb->prefix . 'workedia_subtasks', ['is_completed' => $is_completed ? 1 : 0], ['id' => intval($subtask_id)]);
         }
 
         public static function add_subtask($task_id, $title) {
             global $wpdb;
+            $user_id = get_current_user_id();
+
+            // Security Check: Verify task ownership
+            $owner = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM {$wpdb->prefix}workedia_tasks WHERE id = %d", $task_id));
+            if ($owner != $user_id) return false;
+
             return $wpdb->insert($wpdb->prefix . 'workedia_subtasks', [
                 'task_id' => intval($task_id),
                 'title' => sanitize_text_field($title),

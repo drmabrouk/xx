@@ -359,8 +359,17 @@ $is_officer = $is_administrator;
 
 $active_tab = isset($_GET['workedia_tab']) ? sanitize_text_field($_GET['workedia_tab']) : 'summary';
 $is_restricted = $is_subscriber;
-if ($is_restricted && !in_array($active_tab, ['my-profile', 'member-profile', 'messaging'])) {
-    $active_tab = 'my-profile';
+
+// Member Mode Special Logic
+$member_mode = $is_restricted;
+if ($member_mode) {
+    if (!isset($_GET['workedia_tab'])) {
+        $active_tab = 'app-launcher';
+    }
+}
+
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list'])) {
+    $active_tab = 'app-launcher';
 }
 
 $workedia = Workedia_Settings::get_workedia_info();
@@ -377,9 +386,9 @@ $hour = (int)current_time('G');
 $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء الخير';
 ?>
 
-<div class="workedia-admin-dashboard" dir="rtl" style="font-family: 'Rubik', sans-serif; background: <?php echo $appearance['bg_color']; ?>; border: 1px solid var(--workedia-border-color); border-radius: 12px; overflow: hidden; color: <?php echo $appearance['font_color']; ?>; font-size: <?php echo $appearance['font_size']; ?>; font-weight: <?php echo $appearance['font_weight']; ?>; line-height: <?php echo $appearance['line_spacing']; ?>;">
+<div class="workedia-admin-dashboard <?php echo $member_mode ? 'member-mode-ui' : ''; ?>" dir="rtl" style="font-family: 'Rubik', sans-serif; background: <?php echo $member_mode ? '#f0f2f5' : $appearance['bg_color']; ?>; border: <?php echo $member_mode ? 'none' : '1px solid var(--workedia-border-color)'; ?>; border-radius: 12px; overflow: hidden; color: <?php echo $appearance['font_color']; ?>; font-size: <?php echo $appearance['font_size']; ?>; font-weight: <?php echo $appearance['font_weight']; ?>; line-height: <?php echo $appearance['line_spacing']; ?>;">
     <!-- OFFICIAL SYSTEM HEADER -->
-    <div class="workedia-main-header">
+    <div class="workedia-main-header" style="<?php echo $member_mode ? 'background:transparent; border:none; box-shadow:none; padding: 20px 40px;' : ''; ?>">
         <div style="display: flex; align-items: center; gap: 20px;">
             <?php if (!empty($workedia['workedia_logo'])): ?>
                 <div style="background: white; padding: 5px; border: 1px solid var(--workedia-border-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -527,9 +536,9 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         </div>
     </div>
 
-    <div class="workedia-admin-layout" style="display: flex; min-height: 800px;">
+    <div class="workedia-admin-layout" style="display: flex; min-height: 800px; <?php echo $member_mode ? 'justify-content:center;' : ''; ?>">
         <!-- SIDEBAR -->
-        <?php $is_restricted = $is_subscriber; ?>
+        <?php if (!$member_mode): ?>
         <div class="workedia-sidebar" style="width: 280px; flex-shrink: 0; background: <?php echo $appearance['sidebar_bg_color']; ?>; border-left: 1px solid var(--workedia-border-color); padding: 20px 0;">
             <ul style="list-style: none; padding: 0; margin: 0;">
 
@@ -575,12 +584,25 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 <?php endif; ?>
             </ul>
         </div>
+        <?php endif; ?>
 
         <!-- CONTENT AREA -->
-        <div class="workedia-main-panel" style="flex: 1; min-width: 0; padding: 40px; background: #fff;">
+        <div class="workedia-main-panel" style="<?php echo $member_mode ? 'max-width:1100px; width:100%;' : 'flex: 1; min-width: 0;'; ?> padding: 40px; background: <?php echo $member_mode ? 'transparent' : '#fff'; ?>;">
+
+            <?php if ($member_mode && $active_tab !== 'app-launcher'): ?>
+                <div style="margin-bottom: 25px;">
+                    <a href="<?php echo add_query_arg('workedia_tab', 'app-launcher'); ?>" class="workedia-btn workedia-btn-outline" style="width:auto; background:white; font-weight:700;">
+                        <span class="dashicons dashicons-arrow-right-alt"></span> العودة للرئيسية
+                    </a>
+                </div>
+            <?php endif; ?>
 
             <?php
             switch ($active_tab) {
+                case 'app-launcher':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/member-app-launcher.php';
+                    break;
+
                 case 'summary':
                     include WORKEDIA_PLUGIN_DIR . 'templates/public-dashboard-summary.php';
                     break;
