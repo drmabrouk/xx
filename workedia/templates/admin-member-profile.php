@@ -223,13 +223,13 @@ window.showProfileStep = function(step) {
 window.workediaEditMember = function(s) {
     const f = document.getElementById('edit-member-form');
     f.elements['member_id'].value = s.id;
-    f.elements['first_name'].value = s.first_name;
-    f.elements['last_name'].value = s.last_name;
-    f.elements['username'].value = s.username;
+    f.elements['first_name'].value = s.first_name || '';
+    f.elements['last_name'].value = s.last_name || '';
+    f.elements['username'].value = s.username || '';
     f.elements['residence_city'].value = s.residence_city || '';
     f.elements['residence_street'].value = s.residence_street || '';
-    f.elements['phone'].value = s.phone;
-    f.elements['email'].value = s.email;
+    f.elements['phone'].value = s.phone || '';
+    f.elements['email'].value = s.email || '';
     showProfileStep('basic');
     document.getElementById('edit-member-modal').style.display = 'flex';
 };

@@ -70,6 +70,15 @@
             <h3>منشئ النماذج</h3>
             <p>إنشاء استبيانات وجمع البيانات</p>
         </a>
+
+        <!-- BMI App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'bmi'); ?>" class="app-card">
+            <div class="app-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                <span class="dashicons dashicons-heart"></span>
+            </div>
+            <h3>حاسبة BMI</h3>
+            <p>متابعة مؤشر كتلة الجسم والصحة</p>
+        </a>
     </div>
 </div>
 

@@ -191,18 +191,43 @@ function workediaViewSubmissions(id, title) {
 
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
         if (res.success && res.data.length > 0) {
-            let html = '<table class="workedia-table"><thead><tr><th>الوقت</th><th>بيانات الرد</th></tr></thead><tbody>';
+            let csvData = "Time,Data\n";
+            let html = `
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <button onclick="exportSubmissionsToCSV()" class="workedia-btn" style="width: auto; height: 35px; font-size: 12px; background: #27ae60;">تصدير إلى CSV</button>
+                </div>
+                <table class="workedia-table" id="subs-table">
+                <thead><tr><th>الوقت</th><th>بيانات الرد</th></tr></thead><tbody>`;
+
             res.data.forEach(s => {
                 const data = JSON.parse(s.submission_data);
                 let dataHtml = '';
-                for (let k in data) { dataHtml += `<div><strong>${k}:</strong> ${data[k]}</div>`; }
+                let csvRow = '';
+                for (let k in data) {
+                    dataHtml += `<div><strong>${k}:</strong> ${data[k]}</div>`;
+                    csvRow += `[${k}: ${data[k]}] `;
+                }
                 html += `<tr><td>${s.submitted_at}</td><td>${dataHtml}</td></tr>`;
+                csvData += `"${s.submitted_at}","${csvRow.replace(/"/g, '""')}"\n`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+            window.lastSubmissionCSV = csvData;
         } else {
             container.innerHTML = '<div style="text-align: center; padding: 50px; color: #94a3b8;">لا توجد ردود بعد.</div>';
         }
     });
+}
+
+function exportSubmissionsToCSV() {
+    const blob = new Blob([window.lastSubmissionCSV], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "form_submissions.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
