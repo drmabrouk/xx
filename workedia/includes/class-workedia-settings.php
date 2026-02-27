@@ -32,7 +32,8 @@ class Workedia_Settings {
             'tab_notebook' => 'دفتر الملاحظات',
             'tab_task_list' => 'مدير المهام',
             'tab_calculator' => 'الحاسبة المتطورة',
-            'tab_form_builder' => 'منشئ النماذج'
+            'tab_form_builder' => 'منشئ النماذج',
+            'tab_bmi' => 'حاسبة BMI'
         );
         return wp_parse_args(get_option('workedia_labels', array()), $default);
     }

@@ -275,6 +275,21 @@ class Workedia_Activator {
             KEY form_id (form_id)
         ) $charset_collate;\n";
 
+        // BMI History Table
+        $table_name = $wpdb->prefix . 'workedia_bmi_history';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            weight decimal(10,2) NOT NULL,
+            height decimal(10,2) NOT NULL,
+            bmi decimal(10,2) NOT NULL,
+            classification varchar(50) NOT NULL,
+            units longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 

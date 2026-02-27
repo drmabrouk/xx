@@ -946,7 +946,14 @@ class Workedia_Public {
         check_ajax_referer('workedia_add_member', 'workedia_nonce');
 
         $member_id = intval($_POST['member_id']);
-        if (!$this->can_access_member($member_id)) wp_send_json_error('Access denied');
+
+        // REINFORCE SECURITY: Only admin OR the user themselves can update the record
+        $member = Workedia_DB::get_member_by_id($member_id);
+        if (!$member) wp_send_json_error('Member not found');
+
+        if (!current_user_can('manage_options') && $member->wp_user_id != get_current_user_id()) {
+            wp_send_json_error('Security Check Failed: Unauthorized access.');
+        }
 
         Workedia_DB::update_member($member_id, $_POST);
         wp_send_json_success('Updated');
@@ -1996,6 +2003,29 @@ class Workedia_Public {
         $data = stripslashes($_POST['submission'] ?? '[]');
         if (Workedia_FormBuilder::submit_form($form_id, json_decode($data, true))) wp_send_json_success('تم إرسال ردك بنجاح. شكراً لك.');
         else wp_send_json_error('فشل في إرسال الرد');
+    }
+
+    // BMI AJAX Handlers
+    public function ajax_save_bmi() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_bmi_action', 'nonce');
+        $id = Workedia_BMI::save_entry($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save BMI entry');
+    }
+
+    public function ajax_delete_bmi() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_bmi_action', 'nonce');
+        if (Workedia_BMI::delete_entry($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete BMI entry');
+    }
+
+    public function ajax_get_bmi_history() {
+        if (!is_user_logged_in()) wp_die();
+        $history = Workedia_BMI::get_history(get_current_user_id());
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-bmi-history.php';
+        wp_die();
     }
 
     public function inject_global_alerts() {

@@ -374,7 +374,7 @@ if ($member_mode) {
     }
 }
 
-if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder'])) {
+if ($is_restricted && !in_array($active_tab, ['app-launcher', 'my-profile', 'member-profile', 'messaging', 'notebook', 'task-list', 'calculator', 'form-builder', 'bmi'])) {
     $active_tab = 'app-launcher';
 }
 
@@ -578,6 +578,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <a href="<?php echo add_query_arg('workedia_tab', 'form-builder'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-forms"></span> <?php echo $labels['tab_form_builder']; ?></a>
                     </li>
 
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'bmi' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'bmi'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-heart"></span> <?php echo $labels['tab_bmi']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -646,6 +650,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'form-builder':
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-form-builder.php';
+                    break;
+
+                case 'bmi':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-bmi.php';
                     break;
 
 
