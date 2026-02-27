@@ -10,12 +10,18 @@
             <input type="text" id="docs-search" class="workedia-input" placeholder="بحث في عناوين الوثائق..." oninput="workediaSearchDocs(this.value)" style="padding-left: 35px; border-radius: 50px;">
             <span class="dashicons dashicons-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></span>
         </div>
-        <select id="docs-filter-cat" class="workedia-select" onchange="workediaRefreshDocs()" style="width: 200px; border-radius: 50px;">
+        <select id="docs-filter-cat" class="workedia-select" onchange="workediaRefreshDocs()" style="width: 150px; border-radius: 50px;">
             <option value="">كل الفئات</option>
             <option value="هوية">وثائق هوية</option>
             <option value="مالي">سجلات مالية</option>
             <option value="عقود">عقود واتفاقيات</option>
             <option value="عام">عام</option>
+        </select>
+        <select id="docs-filter-type" class="workedia-select" onchange="workediaRefreshDocs()" style="width: 150px; border-radius: 50px;">
+            <option value="">كل الأنواع</option>
+            <option value="pdf">ملفات PDF</option>
+            <option value="doc">ملفات Word</option>
+            <option value="image">صور</option>
         </select>
     </div>
 
@@ -66,7 +72,8 @@ function workediaOpenUploadModal() {
 function workediaRefreshDocs() {
     const search = document.getElementById('docs-search').value;
     const cat = document.getElementById('docs-filter-cat').value;
-    fetch(ajaxurl + `?action=workedia_get_docs_list_ajax&search=${encodeURIComponent(search)}&category=${encodeURIComponent(cat)}`)
+    const type = document.getElementById('docs-filter-type').value;
+    fetch(ajaxurl + `?action=workedia_get_docs_list_ajax&search=${encodeURIComponent(search)}&category=${encodeURIComponent(cat)}&file_type=${encodeURIComponent(type)}`)
     .then(r => r.text())
     .then(html => {
         document.getElementById('workedia-docs-list').innerHTML = html;

@@ -69,5 +69,22 @@ if (!class_exists('Workedia_FormBuilder')) {
                 $form_id
             ));
         }
+
+        public static function duplicate_form($form_id) {
+            global $wpdb;
+            $user_id = get_current_user_id();
+            $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}workedia_forms WHERE id = %d", $form_id));
+            if (!$form || $form->user_id != $user_id) return false;
+
+            return $wpdb->insert("{$wpdb->prefix}workedia_forms", [
+                'user_id' => $user_id,
+                'title' => sanitize_text_field($form->title . ' (نسخة)'),
+                'description' => $form->description,
+                'fields' => $form->fields,
+                'settings' => $form->settings,
+                'public_token' => wp_generate_password(12, false),
+                'status' => 'active'
+            ]);
+        }
     }
 }

@@ -137,6 +137,9 @@ function workediaCheckDueTasks() {
             // If due in next 5 minutes and not notified
             if (diff > 0 && diff < 300000 && !item.hasAttribute('data-notified')) {
                 workediaShowNotification(`مهمة عاجلة: ${title}`, true);
+                if (window.workediaSendBrowserNotification) {
+                    workediaSendBrowserNotification(`مهمة عاجلة: ${title}`, { body: `تنتهي هذه المهمة خلال أقل من 5 دقائق.` });
+                }
                 item.setAttribute('data-notified', 'true');
             }
         }

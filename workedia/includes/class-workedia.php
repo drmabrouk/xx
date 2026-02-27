@@ -78,6 +78,7 @@ class Workedia {
         // Form Builder AJAX
         $this->loader->add_action('wp_ajax_workedia_save_form', $plugin_public, 'ajax_save_form');
         $this->loader->add_action('wp_ajax_workedia_delete_form', $plugin_public, 'ajax_delete_form');
+        $this->loader->add_action('wp_ajax_workedia_duplicate_form', $plugin_public, 'ajax_duplicate_form');
         $this->loader->add_action('wp_ajax_workedia_get_submissions', $plugin_public, 'ajax_get_submissions');
         $this->loader->add_action('wp_ajax_workedia_submit_public_form', $plugin_public, 'ajax_submit_public_form');
         $this->loader->add_action('wp_ajax_nopriv_workedia_submit_public_form', $plugin_public, 'ajax_submit_public_form');
