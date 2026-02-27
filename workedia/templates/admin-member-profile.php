@@ -22,9 +22,11 @@ if ($is_subscriber && !current_user_can('manage_options')) {
 }
 
 $statuses = Workedia_Settings::get_membership_statuses();
+$member_mode = isset($member_mode) ? $member_mode : false; // Check if passed from parent
 ?>
 
-<div class="workedia-member-profile-view" dir="rtl">
+<div class="workedia-member-profile-view <?php echo $member_mode ? 'workedia-app-container' : ''; ?>" dir="rtl">
+    <?php if (!$member_mode): ?>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--workedia-border-color); box-shadow: var(--workedia-shadow);">
         <div style="display: flex; align-items: center; gap: 20px;">
             <div style="position: relative;">
@@ -59,10 +61,12 @@ $statuses = Workedia_Settings::get_membership_statuses();
     </div>
 
     <!-- Profile Tabs -->
+    <?php if (!$member_mode): ?>
     <div class="workedia-tabs-wrapper" style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
         <button class="workedia-tab-btn workedia-active" onclick="workediaOpenInternalTab('profile-info', this)"><span class="dashicons dashicons-admin-users"></span> بيانات العضوية</button>
         <button class="workedia-tab-btn" onclick="workediaOpenInternalTab('member-chat', this); setTimeout(() => selectConversation(<?php echo $member->id; ?>, '<?php echo esc_js($member->first_name . ' ' . $member->last_name); ?>', <?php echo $member->wp_user_id ?: 0; ?>), 100);"><span class="dashicons dashicons-email"></span> المراسلات والشكاوى</button>
     </div>
+    <?php endif; ?>
 
     <div id="profile-info" class="workedia-internal-tab">
         <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
@@ -84,7 +88,7 @@ $statuses = Workedia_Settings::get_membership_statuses();
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div><label class="workedia-label">المدينة:</label> <div class="workedia-value"><?php echo esc_html($member->residence_city); ?></div></div>
                     <div style="grid-column: span 2;"><label class="workedia-label">العنوان (الشارع):</label> <div class="workedia-value"><?php echo esc_html($member->residence_street); ?></div></div>
-                    <?php if ($member->wp_user_id): ?>
+                    <?php if (!$member_mode && $member->wp_user_id): ?>
                         <?php $temp_pass = get_user_meta($member->wp_user_id, 'workedia_temp_pass', true); if ($temp_pass): ?>
                             <div style="grid-column: span 2; background: #fffaf0; padding: 15px; border-radius: 8px; border: 1px solid #feebc8; margin-top: 10px;">
                                 <label class="workedia-label" style="color: #744210;">كلمة المرور المؤقتة للنظام:</label>
@@ -94,12 +98,21 @@ $statuses = Workedia_Settings::get_membership_statuses();
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
+
+                <?php if ($member_mode): ?>
+                <div style="margin-top: 30px; text-align: center;">
+                    <button onclick="workediaEditMember(<?php echo esc_attr(wp_json_encode($member)); ?>)" class="workedia-btn" style="width: auto; height: 50px; padding: 0 40px; font-weight: 800; font-size: 1.1em;">
+                        تحديث الملف الشخصي
+                    </button>
+                </div>
+                <?php endif; ?>
             </div>
 
         </div>
     </div>
 
     <!-- Communication Tab -->
+    <?php if (!$member_mode): ?>
     <div id="member-chat" class="workedia-internal-tab" style="display: none;">
         <div style="height: 600px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff;">
             <?php
@@ -109,31 +122,52 @@ $statuses = Workedia_Settings::get_membership_statuses();
         </div>
     </div>
 
+    <?php endif; ?>
+
     <!-- Edit Member Modal -->
     <div id="edit-member-modal" class="workedia-modal-overlay">
-        <div class="workedia-modal-content" style="max-width: 900px;">
-            <div class="workedia-modal-header"><h3>تعديل بيانات العضو</h3><button class="workedia-modal-close" onclick="document.getElementById('edit-member-modal').style.display='none'">&times;</button></div>
-            <form id="edit-member-form" style="padding: 20px;">
-                <?php wp_nonce_field('workedia_add_member', 'workedia_nonce'); ?>
+        <div class="workedia-modal-content" style="max-width: 800px; padding: 0; overflow: hidden; border-radius: 24px;">
+            <div class="workedia-modal-header" style="padding: 25px 30px; margin: 0; background: #fafafa;">
+                <h3 style="font-weight: 800;">تحديث الملف الشخصي</h3>
+                <button class="workedia-modal-close" onclick="document.getElementById('edit-member-modal').style.display='none'">&times;</button>
+            </div>
+
+            <form id="edit-member-form">
                 <input type="hidden" name="member_id" id="edit_member_id_hidden">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                    <div class="workedia-form-group"><label class="workedia-label">الاسم الأول:</label><input name="first_name" id="edit_first_name" type="text" class="workedia-input" required></div>
-                    <div class="workedia-form-group"><label class="workedia-label">اسم العائلة:</label><input name="last_name" id="edit_last_name" type="text" class="workedia-input" required></div>
-                    <div class="workedia-form-group"><label class="workedia-label">اسم المستخدم:</label><input name="username" id="edit_username" type="text" class="workedia-input" required></div>
 
-                    <div class="workedia-form-group"><label class="workedia-label">المدينة:</label><input name="residence_city" id="edit_res_city" type="text" class="workedia-input"></div>
+                <div class="profile-edit-steps" style="padding: 30px;">
+                    <!-- Step 1: Basic -->
+                    <div class="profile-step" id="p-step-basic">
+                        <h4 style="margin: 0 0 20px 0; color: var(--workedia-primary-color); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">1. البيانات الشخصية</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="workedia-form-group"><label class="workedia-label">الاسم الأول:</label><input name="first_name" id="edit_first_name" type="text" class="workedia-input" required></div>
+                            <div class="workedia-form-group"><label class="workedia-label">اسم العائلة:</label><input name="last_name" id="edit_last_name" type="text" class="workedia-input" required></div>
+                            <div class="workedia-form-group" style="grid-column: span 2;"><label class="workedia-label">اسم المستخدم (لا يمكن تغييره):</label><input name="username" id="edit_username" type="text" class="workedia-input" readonly style="background: #f8fafc;"></div>
+                        </div>
+                        <div style="text-align: left; margin-top: 20px;">
+                            <button type="button" onclick="showProfileStep('contact')" class="workedia-btn" style="width: auto;">التالي: بيانات الاتصال <span class="dashicons dashicons-arrow-left-alt"></span></button>
+                        </div>
+                    </div>
 
-                    <div class="workedia-form-group" style="grid-column: span 2;"><label class="workedia-label">العنوان (الشارع):</label><input name="residence_street" id="edit_res_street" type="text" class="workedia-input"></div>
-
-                    <div class="workedia-form-group"><label class="workedia-label">رقم الهاتف:</label><input name="phone" id="edit_phone" type="text" class="workedia-input"></div>
-                    <div class="workedia-form-group"><label class="workedia-label">البريد الإلكتروني:</label><input name="email" id="edit_email" type="email" class="workedia-input"></div>
-                    <div class="workedia-form-group" style="grid-column: span 2;"><label class="workedia-label">ملاحظات:</label><textarea name="notes" id="edit_notes" class="workedia-input" rows="2"></textarea></div>
+                    <!-- Step 2: Contact -->
+                    <div class="profile-step" id="p-step-contact" style="display: none;">
+                        <h4 style="margin: 0 0 20px 0; color: var(--workedia-primary-color); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">2. بيانات الاتصال والسكن</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="workedia-form-group"><label class="workedia-label">المدينة:</label><input name="residence_city" id="edit_res_city" type="text" class="workedia-input"></div>
+                            <div class="workedia-form-group"><label class="workedia-label">رقم الهاتف:</label><input name="phone" id="edit_phone" type="text" class="workedia-input"></div>
+                            <div class="workedia-form-group" style="grid-column: span 2;"><label class="workedia-label">العنوان بالتفصيل:</label><input name="residence_street" id="edit_res_street" type="text" class="workedia-input"></div>
+                            <div class="workedia-form-group" style="grid-column: span 2;"><label class="workedia-label">البريد الإلكتروني:</label><input name="email" id="edit_email" type="email" class="workedia-input"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <button type="button" onclick="showProfileStep('basic')" class="workedia-btn workedia-btn-outline" style="width: auto;"><span class="dashicons dashicons-arrow-right-alt"></span> السابق</button>
+                            <button type="submit" class="workedia-btn" style="width: auto; background: #27ae60;">حفظ كافة التغييرات <span class="dashicons dashicons-yes"></span></button>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="workedia-btn" style="width: 100%; margin-top: 20px;">تحديث البيانات الآن</button>
+                <?php wp_nonce_field('workedia_add_member', 'workedia_nonce'); ?>
             </form>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -181,16 +215,22 @@ function deleteMember(id, name) {
     });
 }
 
+window.showProfileStep = function(step) {
+    document.querySelectorAll('.profile-step').forEach(p => p.style.display = 'none');
+    document.getElementById('p-step-' + step).style.display = 'block';
+};
+
 window.workediaEditMember = function(s) {
-    document.getElementById('edit_member_id_hidden').value = s.id;
-    document.getElementById('edit_first_name').value = s.first_name;
-    document.getElementById('edit_last_name').value = s.last_name;
-    document.getElementById('edit_username').value = s.username;
-    document.getElementById('edit_res_city').value = s.residence_city || '';
-    document.getElementById('edit_res_street').value = s.residence_street || '';
-    document.getElementById('edit_phone').value = s.phone;
-    document.getElementById('edit_email').value = s.email;
-    document.getElementById('edit_notes').value = s.notes || '';
+    const f = document.getElementById('edit-member-form');
+    f.elements['member_id'].value = s.id;
+    f.elements['first_name'].value = s.first_name;
+    f.elements['last_name'].value = s.last_name;
+    f.elements['username'].value = s.username;
+    f.elements['residence_city'].value = s.residence_city || '';
+    f.elements['residence_street'].value = s.residence_street || '';
+    f.elements['phone'].value = s.phone;
+    f.elements['email'].value = s.email;
+    showProfileStep('basic');
     document.getElementById('edit-member-modal').style.display = 'flex';
 };
 

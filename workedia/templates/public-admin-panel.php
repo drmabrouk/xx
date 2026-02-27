@@ -560,15 +560,20 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     </li>
                 <?php endif; ?>
 
-                <li class="workedia-sidebar-item <?php echo $active_tab == 'notebook' ? 'workedia-active' : ''; ?>">
-                    <a href="<?php echo add_query_arg('workedia_tab', 'notebook'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-edit"></span> <?php echo $labels['tab_notebook']; ?></a>
-                </li>
-
-                <li class="workedia-sidebar-item <?php echo $active_tab == 'task-list' ? 'workedia-active' : ''; ?>">
-                    <a href="<?php echo add_query_arg('workedia_tab', 'task-list'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-editor-ul"></span> <?php echo $labels['tab_task_list']; ?></a>
-                </li>
 
                 <?php if (!$is_restricted && ($is_admin || $is_sys_admin || $is_administrator)): ?>
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'notebook' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'notebook'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-edit"></span> <?php echo $labels['tab_notebook']; ?></a>
+                    </li>
+
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'task-list' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'task-list'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-editor-ul"></span> <?php echo $labels['tab_task_list']; ?></a>
+                    </li>
+
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'calculator' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'calculator'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-calculator"></span> <?php echo $labels['tab_calculator']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -593,7 +598,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         <?php endif; ?>
 
         <!-- CONTENT AREA -->
-        <div class="workedia-main-panel" style="<?php echo $member_mode ? 'max-width:1100px; width:100%;' : 'flex: 1; min-width: 0;'; ?> padding: 40px; background: <?php echo $member_mode ? 'transparent' : '#fff'; ?>;">
+        <div class="workedia-main-panel" style="<?php echo $member_mode ? 'max-width:1300px; width:100%;' : 'flex: 1; min-width: 0;'; ?> padding: 40px; background: <?php echo $member_mode ? 'transparent' : '#fff'; ?>;">
 
             <?php if ($member_mode && $active_tab !== 'app-launcher'): ?>
                 <div style="margin-bottom: 25px;">

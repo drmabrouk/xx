@@ -16,7 +16,7 @@
         <p style="color: #64748b; font-size: 1em; margin-top: 5px;">اختر الخدمة التي ترغب في الوصول إليها</p>
     </div>
 
-    <div class="app-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; padding: 10px; max-width: 900px; margin: 0 auto;">
+    <div class="app-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 10px; max-width: 1200px; margin: 0 auto;">
         <!-- Profile App -->
         <a href="<?php echo add_query_arg('workedia_tab', 'my-profile'); ?>" class="app-card">
             <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
