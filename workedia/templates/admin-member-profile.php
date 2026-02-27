@@ -45,11 +45,7 @@ $member_mode_active = isset($member_mode) && $member_mode === true;
 
                 <?php
                 $incomplete = (empty($member->phone) || empty($member->email) || empty($member->residence_city));
-                if ($incomplete): ?>
-                    <div class="profile-incomplete-indicator" title="بيانات ناقصة" style="position: absolute; top: -5px; right: -5px; background: #e53e3e; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: help; z-index: 10;">
-                        <span style="font-weight: 900; font-size: 12px;">!</span>
-                    </div>
-                <?php endif; ?>
+                ?>
             </div>
             <div>
                 <h2 style="margin:0; color: var(--workedia-dark-color); border: none; padding: 0;"><?php echo esc_html($member->first_name . ' ' . $member->last_name); ?></h2>

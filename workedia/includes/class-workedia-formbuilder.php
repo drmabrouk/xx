@@ -5,7 +5,9 @@ if (!class_exists('Workedia_FormBuilder')) {
         public static function get_forms($user_id) {
             global $wpdb;
             return $wpdb->get_results($wpdb->prepare(
-                "SELECT f.*, (SELECT COUNT(*) FROM {$wpdb->prefix}workedia_form_submissions s WHERE s.form_id = f.id) as response_count
+                "SELECT f.*,
+                    (SELECT COUNT(*) FROM {$wpdb->prefix}workedia_form_submissions s WHERE s.form_id = f.id) as response_count,
+                    (SELECT MAX(submitted_at) FROM {$wpdb->prefix}workedia_form_submissions s WHERE s.form_id = f.id) as last_response
                  FROM {$wpdb->prefix}workedia_forms f WHERE f.user_id = %d ORDER BY f.created_at DESC",
                 $user_id
             ));
@@ -25,6 +27,12 @@ if (!class_exists('Workedia_FormBuilder')) {
                 'settings' => $data['settings'] ?? '{}',
                 'status' => 'active'
             ];
+
+            if (!empty($data['expiry_date'])) {
+                $settings = json_decode($insert_data['settings'], true);
+                $settings['expiry_date'] = sanitize_text_field($data['expiry_date']);
+                $insert_data['settings'] = json_encode($settings);
+            }
 
             if ($form_id) {
                 // Security Check

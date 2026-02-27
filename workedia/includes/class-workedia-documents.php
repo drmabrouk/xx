@@ -69,7 +69,9 @@ if (!class_exists('Workedia_Documents')) {
                 'category' => sanitize_text_field($data['category'] ?? 'عام'),
                 'file_url' => $file_url,
                 'file_type' => $file_type,
-                'file_size' => $file_size
+                'file_size' => $file_size,
+                'description' => sanitize_textarea_field($data['description'] ?? ''),
+                'tags' => sanitize_text_field($data['tags'] ?? '')
             ]);
         }
 

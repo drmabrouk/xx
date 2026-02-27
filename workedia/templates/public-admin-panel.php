@@ -59,6 +59,15 @@
 
     window.addEventListener('load', workediaRequestNotificationPermission);
 
+    window.workediaUpdateLiveTime = function() {
+        const timeEl = document.getElementById('workedia-live-time');
+        if (!timeEl) return;
+        const now = new Date();
+        timeEl.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    };
+    setInterval(window.workediaUpdateLiveTime, 1000);
+    window.addEventListener('load', window.workediaUpdateLiveTime);
+
     window.workediaViewLogDetails = function(log) {
         const detailsBody = document.getElementById('log-details-body');
         let detailsText = log.details;
@@ -414,41 +423,15 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
 <div class="workedia-admin-dashboard <?php echo $member_mode ? 'member-mode-ui' : ''; ?>" dir="rtl" style="font-family: 'Rubik', sans-serif; background: <?php echo $member_mode ? '#f0f2f5' : $appearance['bg_color']; ?>; border: <?php echo $member_mode ? 'none' : '1px solid var(--workedia-border-color)'; ?>; border-radius: 12px; overflow: hidden; color: <?php echo $appearance['font_color']; ?>; font-size: <?php echo $appearance['font_size']; ?>; font-weight: <?php echo $appearance['font_weight']; ?>; line-height: <?php echo $appearance['line_spacing']; ?>;">
     <!-- OFFICIAL SYSTEM HEADER -->
-    <div class="workedia-main-header" style="<?php echo $member_mode ? 'background:transparent; border:none; box-shadow:none; padding: 20px 40px;' : ''; ?>">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <?php if (!empty($workedia['workedia_logo'])): ?>
-                <div style="background: white; padding: 5px; border: 1px solid var(--workedia-border-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <img src="<?php echo esc_url($workedia['workedia_logo']); ?>" style="height: 45px; width: auto; object-fit: contain; display: block;">
-                </div>
-            <?php else: ?>
-                <div style="background: #f1f5f9; padding: 5px; border: 1px solid var(--workedia-border-color); border-radius: 10px; height: 45px; width: 45px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-                    <span class="dashicons dashicons-building" style="font-size: 24px; width: 24px; height: 24px;"></span>
-                </div>
-            <?php endif; ?>
-            <div>
-                <h1 style="margin:0; border: none; padding: 0; color: var(--workedia-dark-color); font-weight: 800; font-size: 1.3em; text-decoration: none; line-height: 1;">
-                    <?php echo esc_html($workedia['workedia_name']); ?>
-                </h1>
-                <div style="display: inline-flex; flex-direction: column; align-items: center; padding: 5px 15px; background: #f0f4f8; color: #111F35; border-radius: 12px; font-size: 11px; font-weight: 700; margin-top: 6px; border: 1px solid #cbd5e0; line-height: 1.4;">
-                    <div>
-                        <?php
-                        if ($is_admin || $is_sys_admin) echo 'مدير النظام';
-                        elseif ($is_administrator) echo 'مسؤول Workedia';
-                        elseif ($is_subscriber) echo 'عضو Workedia';
-                        elseif ($is_member) echo 'عضو';
-                        else echo 'مستخدم النظام';
-                        ?>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="workedia-main-header" style="<?php echo $member_mode ? 'background:transparent; border:none; box-shadow:none; padding: 20px 40px;' : ''; ?> display: flex; justify-content: space-between; align-items: center;">
 
         <div style="display: flex; align-items: center; gap: 20px;">
-            <div class="workedia-header-info-box" style="text-align: right; border-left: 1px solid var(--workedia-border-color); padding-left: 15px;">
+            <div style="background: white; border: 1px solid var(--workedia-border-color); border-radius: 12px; padding: 8px 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center;">
                 <div style="font-size: 0.85em; font-weight: 700; color: var(--workedia-dark-color);"><?php echo date_i18n('l j F Y'); ?></div>
+                <div id="workedia-live-time" style="font-size: 0.8em; color: var(--workedia-primary-color); font-weight: 800; margin-top: 2px; font-family: monospace;">--:--:--</div>
             </div>
 
-            <div style="display: flex; gap: 15px; align-items: center; border-left: 1px solid var(--workedia-border-color); padding-left: 20px;">
+            <div style="display: flex; gap: 15px; align-items: center; border-right: 1px solid var(--workedia-border-color); padding-right: 20px;">
                 <!-- Messages Icon -->
                 <a href="<?php echo add_query_arg('workedia_tab', 'messaging'); ?>" class="workedia-header-circle-icon" title="المراسلات والشكاوى">
                     <span class="dashicons dashicons-email"></span>
@@ -504,7 +487,13 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <div style="font-size: 0.85em; font-weight: 700; color: var(--workedia-dark-color);"><?php echo $greeting . '، ' . $user->display_name; ?></div>
                         <div style="font-size: 0.7em; color: #38a169;">متصل الآن <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px;"></span></div>
                     </div>
-                    <?php echo get_avatar($user->ID, 32, '', '', array('style' => 'border-radius: 50%; border: 2px solid var(--workedia-primary-color);')); ?>
+                    <?php
+                    $user_photo_url = $wpdb->get_var($wpdb->prepare("SELECT photo_url FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user->ID));
+                    if ($user_photo_url): ?>
+                        <img src="<?php echo esc_url($user_photo_url); ?>" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--workedia-primary-color); object-fit: cover;">
+                    <?php else: ?>
+                        <?php echo get_avatar($user->ID, 32, '', '', array('style' => 'border-radius: 50%; border: 2px solid var(--workedia-primary-color);')); ?>
+                    <?php endif; ?>
                 </div>
                 <div id="workedia-user-dropdown-menu" style="display: none; position: absolute; top: 110%; left: 0; background: white; border: 1px solid var(--workedia-border-color); border-radius: 8px; width: 260px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; animation: workediaFadeIn 0.2s ease-out; padding: 10px 0;">
                     <div id="workedia-profile-view">
@@ -552,6 +541,19 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     <a href="<?php echo wp_logout_url(home_url('/workedia-login')); ?>" class="workedia-dropdown-item" style="color: #e53e3e;"><span class="dashicons dashicons-logout"></span> تسجيل الخروج</a>
                 </div>
             </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div>
+                <h1 style="margin:0; border: none; padding: 0; color: var(--workedia-dark-color); font-weight: 800; font-size: 1.3em; text-decoration: none; line-height: 1;">
+                    <?php echo esc_html($workedia['workedia_name']); ?>
+                </h1>
+            </div>
+            <?php if (!empty($workedia['workedia_logo'])): ?>
+                <div style="background: white; padding: 5px; border: 1px solid var(--workedia-border-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <img src="<?php echo esc_url($workedia['workedia_logo']); ?>" style="height: 45px; width: auto; object-fit: contain; display: block;">
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 

@@ -300,6 +300,8 @@ class Workedia_Activator {
             file_url text NOT NULL,
             file_type varchar(50),
             file_size bigint(20),
+            description text,
+            tags varchar(255),
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id),
             KEY user_id (user_id)

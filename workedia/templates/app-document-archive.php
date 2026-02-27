@@ -46,13 +46,23 @@
                 <input type="text" name="title" class="workedia-input" required placeholder="مثال: صورة الهوية الشخصية">
             </div>
             <div class="workedia-form-group">
-                <label class="workedia-label">الفئة:</label>
-                <select name="category" class="workedia-select">
-                    <option value="عام">عام</option>
-                    <option value="هوية">وثائق هوية</option>
-                    <option value="مالي">سجلات مالية</option>
-                    <option value="عقود">عقود واتفاقيات</option>
-                </select>
+                <label class="workedia-label">الوصف:</label>
+                <textarea name="description" class="workedia-textarea" rows="2" placeholder="اكتب نبذة عن الملف..."></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="workedia-form-group">
+                    <label class="workedia-label">الفئة:</label>
+                    <select name="category" class="workedia-select">
+                        <option value="عام">عام</option>
+                        <option value="هوية">وثائق هوية</option>
+                        <option value="مالي">سجلات مالية</option>
+                        <option value="عقود">عقود واتفاقيات</option>
+                    </select>
+                </div>
+                <div class="workedia-form-group">
+                    <label class="workedia-label">الوسوم (مفصولة بفواصل):</label>
+                    <input type="text" name="tags" class="workedia-input" placeholder="عاجل, هام">
+                </div>
             </div>
             <div class="workedia-form-group">
                 <label class="workedia-label">الملف (Images, PDF, Word):</label>

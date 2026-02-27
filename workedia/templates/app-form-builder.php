@@ -3,7 +3,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">منشئ النماذج الذكي</h2>
-        <button onclick="workediaOpenFormCreator()" class="workedia-btn" style="width: auto;">+ إنشاء نموذج جديد</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="form-search-wrapper" style="position: relative; width: 300px;">
+                <input type="text" id="form-search-input" class="workedia-input" placeholder="بحث في النماذج..." oninput="workediaFilterForms(this.value)" style="padding-left: 35px; border-radius: 50px;">
+                <span class="dashicons dashicons-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></span>
+            </div>
+            <button onclick="workediaOpenFormCreator()" class="workedia-btn" style="width: auto;">+ إنشاء نموذج جديد</button>
+        </div>
     </div>
 
     <div id="forms-dashboard" class="workedia-card-grid">
@@ -35,8 +41,21 @@
                 <h3 class="note-card-title" style="margin-bottom: 5px;"><?php echo esc_html($form->title); ?></h3>
                 <p style="color: #64748b; font-size: 12px; line-height: 1.5; min-height: 36px;"><?php echo esc_html($form->description); ?></p>
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 13px; font-weight: 800; color: var(--workedia-primary-color);"><?php echo $form->response_count; ?> ردود</span>
-                    <span style="font-size: 11px; color: #94a3b8;"><?php echo date('Y-m-d', strtotime($form->created_at)); ?></span>
+                    <div>
+                        <span style="font-size: 13px; font-weight: 800; color: var(--workedia-primary-color);"><?php echo $form->response_count; ?> ردود</span>
+                        <?php if ($form->last_response): ?>
+                            <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">آخر رد: <?php echo date('Y-m-d', strtotime($form->last_response)); ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <?php
+                    $settings = json_decode($form->settings, true);
+                    if (!empty($settings['expiry_date'])):
+                        $expired = strtotime($settings['expiry_date']) < time();
+                    ?>
+                        <span class="workedia-badge" style="background: <?php echo $expired ? '#FFF5F5' : '#E6FFFA'; ?>; color: <?php echo $expired ? '#E53E3E' : '#319795'; ?>; font-size: 10px;">
+                            <?php echo $expired ? 'منتهي' : 'ينتهي: ' . $settings['expiry_date']; ?>
+                        </span>
+                    <?php endif; ?>
                 </div>
                 </div>
             </div>
@@ -66,6 +85,10 @@
                 <div class="workedia-form-group">
                     <label class="workedia-label">رسالة النجاح المخصصة:</label>
                     <input type="text" id="form-success-msg" class="workedia-input" placeholder="مثال: شكراً لك! تم استلام ردك.">
+                </div>
+                <div class="workedia-form-group">
+                    <label class="workedia-label">تاريخ الانتهاء (اختياري):</label>
+                    <input type="date" id="form-expiry-date" class="workedia-input">
                 </div>
 
                 <h4 style="margin: 30px 0 15px 0; font-size: 14px; color: #1a202c; border-bottom: 1px solid #eee; padding-bottom: 8px;">إضافة حقول</h4>
@@ -280,10 +303,12 @@ function renderSubmissions(data) {
     let html = `
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <input type="text" placeholder="بحث في الردود..." class="workedia-input" style="width: 300px; height: 35px; font-size: 12px;" oninput="filterSubmissions(this.value)">
-            <button onclick="exportSubmissionsToCSV()" class="workedia-btn" style="width: auto; height: 35px; font-size: 12px; background: #27ae60;">تصدير إلى CSV</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="exportSubmissionsToCSV()" class="workedia-btn" style="width: auto; height: 35px; font-size: 12px; background: #27ae60;">تصدير CSV</button>
+            </div>
         </div>
         <table class="workedia-table" id="subs-table">
-        <thead><tr><th>الوقت</th><th>بيانات الرد</th></tr></thead><tbody>`;
+        <thead><tr><th>الوقت</th><th>بيانات الرد</th><th>إجراءات</th></tr></thead><tbody>`;
 
     data.forEach(s => {
         const rowData = JSON.parse(s.submission_data);
@@ -293,12 +318,56 @@ function renderSubmissions(data) {
             dataHtml += `<div><span style="color:#94a3b8; font-size:11px;">${k}:</span> <strong>${rowData[k]}</strong></div>`;
             csvRow += `,"${rowData[k].toString().replace(/"/g, '""')}"`;
         }
-        html += `<tr><td style="font-size:11px; color:#94a3b8; width:150px;">${s.submitted_at}</td><td>${dataHtml}</td></tr>`;
+        html += `<tr>
+            <td style="font-size:11px; color:#94a3b8; width:150px;">${s.submitted_at}</td>
+            <td>${dataHtml}</td>
+            <td style="width: 100px; text-align:center;">
+                <button onclick='workediaDownloadResponsePDF(${JSON.stringify(rowData)}, "${s.submitted_at}")' class="workedia-btn" style="width:auto; height:30px; font-size:10px; background:#4a5568;"><span class="dashicons dashicons-pdf" style="font-size:14px;"></span> PDF</button>
+            </td>
+        </tr>`;
         csvData += csvRow + "\n";
     });
     html += '</tbody></table>';
     container.innerHTML = html;
     window.lastSubmissionCSV = csvData;
+}
+
+function workediaFilterForms(val) {
+    const cards = document.querySelectorAll('.form-card');
+    cards.forEach(card => {
+        const title = card.querySelector('h3').innerText.toLowerCase();
+        card.style.display = title.includes(val.toLowerCase()) ? 'block' : 'none';
+    });
+}
+
+function workediaDownloadResponsePDF(data, time) {
+    const reportWindow = window.open('', '_blank');
+    let dataRows = '';
+    for (let k in data) {
+        dataRows += `<tr><td style="padding:12px; border-bottom:1px solid #eee; font-weight:700; width:30%;">${k}</td><td style="padding:12px; border-bottom:1px solid #eee;">${data[k]}</td></tr>`;
+    }
+
+    const content = `
+        <html dir="rtl">
+        <head>
+            <title>تفاصيل الرد - Workedia</title>
+            <style>
+                body { font-family: "Rubik", sans-serif; padding: 40px; color: #1a202c; line-height: 1.6; }
+                .header { text-align: center; border-bottom: 3px solid #F63049; padding-bottom: 20px; margin-bottom: 40px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #eee; padding-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="header"><h1>تفاصيل الرد على النموذج</h1><p>تاريخ الاستلام: ${time}</p></div>
+            <table>${dataRows}</table>
+            <div class="footer">Workedia Form Builder - PDF Export</div>
+            <script>window.print();<\/script>
+        </body>
+        </html>
+    `;
+    reportWindow.document.write(content);
+    reportWindow.document.close();
 }
 
 function filterSubmissions(val) {

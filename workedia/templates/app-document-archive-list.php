@@ -16,14 +16,25 @@
                 <tr><td colspan="6" style="text-align: center; padding: 50px; color: #94a3b8;">لا توجد وثائق مؤرشفة حالياً.</td></tr>
             <?php else: foreach ($docs as $doc):
                 $ext = pathinfo($doc->file_url, PATHINFO_EXTENSION);
-                $type_color = '#F1F5F9';
-                $type_text = '#475569';
+                $type_color = '#F1F5F9'; $type_text = '#475569';
                 if ($ext == 'pdf') { $type_color = '#FFF5F5'; $type_text = '#E53E3E'; }
                 elseif (in_array($ext, ['doc', 'docx'])) { $type_color = '#EBF8FF'; $type_text = '#3182CE'; }
                 elseif (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) { $type_color = '#F0FFF4'; $type_text = '#38A169'; }
             ?>
                 <tr>
-                    <td><strong><?php echo esc_html($doc->title); ?></strong></td>
+                    <td>
+                        <div style="font-weight: 700;"><?php echo esc_html($doc->title); ?></div>
+                        <?php if (!empty($doc->description)): ?>
+                            <div style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: normal;"><?php echo esc_html($doc->description); ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($doc->tags)): ?>
+                            <div style="margin-top: 6px; display: flex; gap: 4px;">
+                                <?php foreach(explode(',', $doc->tags) as $tag): ?>
+                                    <span style="font-size: 9px; padding: 2px 6px; background: #f8fafc; border: 1px solid #eee; border-radius: 4px; color: #64748b;"><?php echo trim($tag); ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
                     <td><span style="font-size: 11px; color: #64748b;"><?php echo esc_html($doc->category); ?></span></td>
                     <td><span class="workedia-badge" style="background: <?php echo $type_color; ?>; color: <?php echo $type_text; ?>; border-radius: 50px; text-transform: uppercase;"><?php echo $ext; ?></span></td>
                     <td><span style="font-size: 11px; color: #94a3b8;"><?php echo round($doc->file_size / 1024 / 1024, 2); ?> MB</span></td>
