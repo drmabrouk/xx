@@ -21,17 +21,32 @@ $fields = json_decode($form->fields, true);
     <div id="form-msg-container"></div>
 
     <form id="public-form-el">
-        <?php foreach ($fields as $f): ?>
+        <?php foreach ($fields as $f):
+            $req = !empty($f['required']) ? 'required' : '';
+        ?>
             <div class="workedia-form-group" style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 14px;"><?php echo esc_html($f['label']); ?></label>
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 14px;">
+                    <?php echo esc_html($f['label']); ?>
+                    <?php if ($req) echo '<span style="color:#e53e3e; margin-right:4px;">*</span>'; ?>
+                </label>
+
                 <?php if ($f['type'] === 'textarea'): ?>
-                    <textarea name="<?php echo esc_attr($f['label']); ?>" class="workedia-textarea" rows="4"></textarea>
+                    <textarea name="<?php echo esc_attr($f['label']); ?>" class="workedia-textarea" rows="4" <?php echo $req; ?>></textarea>
                 <?php elseif ($f['type'] === 'number'): ?>
-                    <input type="number" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input">
+                    <input type="number" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input" <?php echo $req; ?>>
                 <?php elseif ($f['type'] === 'email'): ?>
-                    <input type="email" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input">
+                    <input type="email" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input" <?php echo $req; ?>>
+                <?php elseif ($f['type'] === 'date'): ?>
+                    <input type="date" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input" <?php echo $req; ?>>
+                <?php elseif ($f['type'] === 'select'): ?>
+                    <select name="<?php echo esc_attr($f['label']); ?>" class="workedia-select" <?php echo $req; ?>>
+                        <option value="">-- اختر --</option>
+                        <?php foreach (($f['options'] ?? []) as $opt): ?>
+                            <option value="<?php echo esc_attr($opt); ?>"><?php echo esc_html($opt); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 <?php else: ?>
-                    <input type="text" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input">
+                    <input type="text" name="<?php echo esc_attr($f['label']); ?>" class="workedia-input" <?php echo $req; ?>>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
@@ -59,7 +74,12 @@ $fields = json_decode($form->fields, true);
         .then(r => r.json())
         .then(res => {
             if (res.success) {
-                document.getElementById('form-msg-container').innerHTML = `<div style="background: #F0FFF4; color: #276749; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #C6F6D5; text-align: center;">${res.data}</div>`;
+                const customMsg = "<?php
+                    $settings = json_decode($form->settings, true);
+                    echo esc_js($settings['success_message'] ?? '');
+                ?>";
+                const displayMsg = customMsg || res.data;
+                document.getElementById('form-msg-container').innerHTML = `<div style="background: #F0FFF4; color: #276749; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #C6F6D5; text-align: center;">${displayMsg}</div>`;
                 document.getElementById('public-form-el').style.display = 'none';
             } else {
                 alert('خطأ: ' + res.data);
