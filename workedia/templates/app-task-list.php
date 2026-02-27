@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container tasklist-app">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-editor-ul" style="color:var(--workedia-primary-color);"></span> مدير المهام</h2>
+        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">مدير المهام</h2>
         <div style="display: flex; gap: 10px;">
             <button onclick="workediaSyncGoogle()" class="workedia-btn workedia-btn-outline" style="width: auto; border-color: #4285F4; color: #4285F4 !important; background:white;"><span class="dashicons dashicons-google"></span> مزامنة Google</button>
         </div>
@@ -12,14 +12,19 @@
         <form id="workedia-quick-task-form" style="display: flex; gap: 15px; align-items: center;">
             <div style="flex: 1; position: relative;">
                 <input type="text" name="title" class="workedia-input" placeholder="ما هي المهمة التالية؟" style="border: none; padding: 10px 0; font-size: 1.1em; font-weight: 600; border-radius: 0;" required>
+                <input type="hidden" name="task_date" value="<?php echo date('Y-m-d H:i:s'); ?>">
                 <div class="task-creation-options" style="display: flex; gap: 20px; margin-top: 10px;">
-                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;">
-                        <span class="dashicons dashicons-calendar-alt" style="font-size:16px;"></span>
-                        <input type="datetime-local" name="deadline" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
+                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;" title="تاريخ المهمة">
+                        <span class="dashicons dashicons-clock" style="font-size:16px;"></span>
+                        <span><?php echo date('Y-m-d H:i'); ?></span>
                     </div>
-                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;">
+                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;" title="تاريخ الاستحقاق">
+                        <span class="dashicons dashicons-calendar-alt" style="font-size:16px;"></span>
+                        <input type="datetime-local" name="deadline" id="quick-task-deadline" value="<?php echo date('Y-m-d\TH:i'); ?>" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;" title="تنبيه">
                         <span class="dashicons dashicons-bell" style="font-size:16px;"></span>
-                        <input type="datetime-local" name="reminder_at" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
+                        <input type="datetime-local" name="reminder_at" id="quick-task-reminder" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
                     </div>
                 </div>
             </div>
@@ -145,6 +150,16 @@ function workediaSyncGoogle() {
 
 document.getElementById('workedia-quick-task-form').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    const deadline = document.getElementById('quick-task-deadline').value;
+    const reminder = document.getElementById('quick-task-reminder').value;
+
+    const taskDate = new Date();
+    if (reminder && new Date(reminder) < taskDate) {
+        alert('تنبيه: لا يمكن تعيين وقت التذكير قبل الوقت الحالي.');
+        return;
+    }
+
     const fd = new FormData(this);
     fd.append('action', 'workedia_save_task');
     fd.append('nonce', '<?php echo wp_create_nonce("workedia_tasklist_action"); ?>');

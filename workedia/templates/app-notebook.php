@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container notebook-app">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-edit" style="color:var(--workedia-primary-color);"></span> دفتر الملاحظات</h2>
+        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">دفتر الملاحظات</h2>
     </div>
 
     <!-- Sophisticated Quick Note Creation -->
@@ -18,14 +18,15 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <div class="color-picker-simple" style="display: flex; gap: 8px;">
-                            <label style="background: #ffffff; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; cursor: pointer;"><input type="radio" name="color" value="#ffffff" checked style="display:none;"></label>
-                            <label style="background: #fff5f5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fff5f5" style="display:none;"></label>
-                            <label style="background: #f0fff4; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f0fff4" style="display:none;"></label>
-                            <label style="background: #fffaf0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fffaf0" style="display:none;"></label>
-                            <label style="background: #ebf8ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#ebf8ff" style="display:none;"></label>
+                            <label title="أبيض" style="background: #ffffff; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; cursor: pointer;"><input type="radio" name="color" value="#ffffff" checked style="display:none;"></label>
+                            <label title="وردي باستيل" style="background: #fff5f5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fff5f5" style="display:none;"></label>
+                            <label title="أخضر باستيل" style="background: #f0fff4; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f0fff4" style="display:none;"></label>
+                            <label title="أصفر باستيل" style="background: #fffaf0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fffaf0" style="display:none;"></label>
+                            <label title="أزرق باستيل" style="background: #ebf8ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#ebf8ff" style="display:none;"></label>
+                            <label title="بنفسجي باستيل" style="background: #f5f3ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f5f3ff" style="display:none;"></label>
                         </div>
                         <div style="width: 1px; height: 20px; background: #eee;"></div>
-                        <button type="button" onclick="workediaOpenMediaUploader('note_quick_img')" class="auth-btn-link" style="color: #64748b; text-decoration: none; font-size: 13px;"><span class="dashicons dashicons-format-image"></span> إضافة صورة</button>
+                        <button type="button" onclick="workediaOpenMediaUploader('note_quick_img')" class="auth-btn-link" style="color: #000; text-decoration: none; font-size: 20px; padding: 0; display: flex; align-items: center;" title="إدراج صورة"><span class="dashicons dashicons-format-image" style="font-size: 24px; width: 24px; height: 24px;"></span></button>
                         <input type="hidden" name="image_url" id="note_quick_img">
                     </div>
                     <div style="display: flex; gap: 10px;">

@@ -2,7 +2,15 @@
 <div class="member-app-launcher">
     <div style="text-align: center; margin-bottom: 40px;">
         <div style="margin-bottom: 20px; display: inline-block;">
-            <?php echo get_avatar(get_current_user_id(), 100, '', '', array('style' => 'border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);')); ?>
+            <?php
+            $user_id = get_current_user_id();
+            global $wpdb;
+            $photo_url = $wpdb->get_var($wpdb->prepare("SELECT photo_url FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
+            if ($photo_url): ?>
+                <img src="<?php echo esc_url($photo_url); ?>" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); object-fit: cover;">
+            <?php else: ?>
+                <?php echo get_avatar($user_id, 100, '', '', array('style' => 'border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);')); ?>
+            <?php endif; ?>
         </div>
         <h2 style="font-weight: 800; font-size: 1.8em; color: var(--workedia-dark-color); margin: 0;">أهلاً بك، <?php echo wp_get_current_user()->display_name; ?></h2>
         <p style="color: #64748b; font-size: 1em; margin-top: 5px;">اختر الخدمة التي ترغب في الوصول إليها</p>
