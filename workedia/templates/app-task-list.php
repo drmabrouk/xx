@@ -153,7 +153,10 @@ function workediaToggleTask(id, completed) {
     fd.append('status', completed ? 'completed' : 'pending');
     fd.append('nonce', '<?php echo wp_create_nonce("workedia_tasklist_action"); ?>');
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
-        if (res.success) workediaRefreshTaskList();
+        if (res.success) {
+            if (completed) workediaShowNotification('تم إنجاز المهمة بنجاح! أحسنت عملًا.');
+            workediaRefreshTaskList();
+        }
     });
 }
 

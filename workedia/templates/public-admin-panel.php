@@ -9,10 +9,16 @@
         showNotification: function(message, isError = false) {
             const toast = document.createElement('div');
             toast.className = 'workedia-toast';
-            toast.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:white; padding:15px 30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10001; display:flex; align-items:center; gap:10px; border-right:5px solid " + (isError ? '#e53e3e' : '#38a169');
-            toast.innerHTML = `<strong>${isError ? '✖' : '✓'}</strong> <span>${message}</span>`;
+
+            // Refined professional style
+            const bgColor = isError ? '#FFF5F5' : '#F0FFF4';
+            const borderColor = isError ? '#E53E3E' : '#38A169';
+            const textColor = isError ? '#C53030' : '#276749';
+
+            toast.style.cssText = `position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:${bgColor}; color:${textColor}; padding:12px 30px; border-radius:50px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:10001; display:flex; align-items:center; gap:12px; border:2px solid ${borderColor}; font-weight:700; font-size:14px; animation: workediaSlideUp 0.4s ease;`;
+            toast.innerHTML = `<span style="font-size:18px;">${isError ? '✕' : '✓'}</span> <span>${message}</span>`;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.5s'; setTimeout(() => toast.remove(), 500); }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.5s'; setTimeout(() => toast.remove(), 500); }, 3500);
         },
 
         openInternalTab: function(tabId, element) {

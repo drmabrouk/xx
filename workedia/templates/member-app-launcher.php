@@ -7,9 +7,9 @@
             global $wpdb;
             $photo_url = $wpdb->get_var($wpdb->prepare("SELECT photo_url FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
             if ($photo_url): ?>
-                <img src="<?php echo esc_url($photo_url); ?>" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); object-fit: cover;">
+                <img src="<?php echo esc_url($photo_url); ?>" style="width: 130px; height: 130px; border-radius: 50%; border: 5px solid white; box-shadow: 0 15px 35px rgba(0,0,0,0.12); object-fit: cover;">
             <?php else: ?>
-                <?php echo get_avatar($user_id, 100, '', '', array('style' => 'border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);')); ?>
+                <?php echo get_avatar($user_id, 130, '', '', array('style' => 'border-radius: 50%; border: 5px solid white; box-shadow: 0 15px 35px rgba(0,0,0,0.12);')); ?>
             <?php endif; ?>
         </div>
         <h2 style="font-weight: 800; font-size: 1.8em; color: var(--workedia-dark-color); margin: 0;">أهلاً بك، <?php echo wp_get_current_user()->display_name; ?></h2>
