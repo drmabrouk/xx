@@ -6,8 +6,16 @@ global $wpdb;
 $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}workedia_forms WHERE public_token = %s AND status = 'active'", $token));
 
 if (!$form) {
-    echo '<h1>عذراً، هذا النموذج غير موجود أو تم إيقافه.</h1>';
+    echo '<div style="text-align:center; padding:100px; font-family:\'Rubik\', sans-serif;"><h1>عذراً، هذا النموذج غير موجود أو تم إيقافه.</h1></div>';
     return;
+}
+
+$settings = json_decode($form->settings, true);
+if (!empty($settings['expiry_date'])) {
+    if (strtotime($settings['expiry_date']) < time()) {
+        echo '<div style="text-align:center; padding:100px; font-family:\'Rubik\', sans-serif;"><h1>عذراً، انتهت صلاحية هذا النموذج.</h1><p>تاريخ الانتهاء: ' . $settings['expiry_date'] . '</p></div>';
+        return;
+    }
 }
 
 $fields = json_decode($form->fields, true);

@@ -26,11 +26,6 @@
             </div>
             <input type="file" id="launcher-photo-input" style="display:none;" accept="image/*" onchange="workediaUploadLauncherPhoto(<?php echo $member->id ?? 0; ?>)">
 
-            <?php if ($incomplete): ?>
-                <div class="profile-incomplete-indicator" title="بيانات ملفك الشخصي غير مكتملة" style="position: absolute; top: 10px; right: 10px; background: #e53e3e; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: help;">
-                    <span style="font-weight: 900; font-size: 18px;">!</span>
-                </div>
-            <?php endif; ?>
         </div>
         <h2 style="font-weight: 800; font-size: 1.8em; color: var(--workedia-dark-color); margin: 0;">أهلاً بك، <?php echo wp_get_current_user()->display_name; ?></h2>
         <p style="color: #64748b; font-size: 1em; margin-top: 5px;">
