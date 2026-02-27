@@ -30,7 +30,8 @@ class Workedia_Settings {
             'tab_global_settings' => 'إعدادات النظام',
             'tab_my_profile' => 'ملفي الشخصي',
             'tab_notebook' => 'دفتر الملاحظات',
-            'tab_task_list' => 'مدير المهام'
+            'tab_task_list' => 'مدير المهام',
+            'tab_calculator' => 'الحاسبة المتطورة'
         );
         return wp_parse_args(get_option('workedia_labels', array()), $default);
     }

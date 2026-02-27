@@ -2,19 +2,27 @@
 
 if (!class_exists('Workedia_Notebook')) {
     class Workedia_Notebook {
-        public static function get_notes($user_id) {
+        public static function get_notes($user_id, $search = '') {
             global $wpdb;
             $table = $wpdb->prefix . 'workedia_notes';
             $share_table = $wpdb->prefix . 'workedia_note_shares';
 
-            return $wpdb->get_results($wpdb->prepare(
-                "SELECT n.* FROM $table n
-                 LEFT JOIN $share_table s ON n.id = s.note_id
-                 WHERE n.user_id = %d OR s.user_id = %d
-                 GROUP BY n.id
-                 ORDER BY n.updated_at DESC",
-                $user_id, $user_id
-            ));
+            $query = "SELECT n.* FROM $table n
+                      LEFT JOIN $share_table s ON n.id = s.note_id
+                      WHERE (n.user_id = %d OR s.user_id = %d)";
+            $params = [$user_id, $user_id];
+
+            if (!empty($search)) {
+                $query .= " AND (n.title LIKE %s OR n.content LIKE %s OR n.tags LIKE %s)";
+                $s = '%' . $wpdb->esc_like($search) . '%';
+                $params[] = $s;
+                $params[] = $s;
+                $params[] = $s;
+            }
+
+            $query .= " GROUP BY n.id ORDER BY n.updated_at DESC";
+
+            return $wpdb->get_results($wpdb->prepare($query, $params));
         }
 
         public static function save_note($data) {

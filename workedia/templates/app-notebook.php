@@ -2,6 +2,10 @@
 <div class="workedia-app-container notebook-app">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);">دفتر الملاحظات</h2>
+        <div class="notebook-search-wrapper" style="position: relative; width: 300px;">
+            <input type="text" id="notebook-search" class="workedia-input" placeholder="بحث في الملاحظات أو الوسوم..." oninput="workediaSearchNotes(this.value)" style="padding-left: 35px; border-radius: 50px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+            <span class="dashicons dashicons-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></span>
+        </div>
     </div>
 
     <!-- Sophisticated Quick Note Creation -->
@@ -18,12 +22,12 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <div class="color-picker-simple" style="display: flex; gap: 8px;">
-                            <label title="أبيض" style="background: #ffffff; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; cursor: pointer;"><input type="radio" name="color" value="#ffffff" checked style="display:none;"></label>
-                            <label title="وردي باستيل" style="background: #fff5f5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fff5f5" style="display:none;"></label>
-                            <label title="أخضر باستيل" style="background: #f0fff4; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f0fff4" style="display:none;"></label>
-                            <label title="أصفر باستيل" style="background: #fffaf0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fffaf0" style="display:none;"></label>
-                            <label title="أزرق باستيل" style="background: #ebf8ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#ebf8ff" style="display:none;"></label>
-                            <label title="بنفسجي باستيل" style="background: #f5f3ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f5f3ff" style="display:none;"></label>
+                            <label class="color-dot" title="أبيض" style="background: #ffffff; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#ffffff" checked style="display:none;"></label>
+                            <label class="color-dot" title="وردي باستيل" style="background: #fff5f5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#fff5f5" style="display:none;"></label>
+                            <label class="color-dot" title="أخضر باستيل" style="background: #f0fff4; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#f0fff4" style="display:none;"></label>
+                            <label class="color-dot" title="أصفر باستيل" style="background: #fffaf0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#fffaf0" style="display:none;"></label>
+                            <label class="color-dot" title="أزرق باستيل" style="background: #ebf8ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#ebf8ff" style="display:none;"></label>
+                            <label class="color-dot" title="بنفسجي باستيل" style="background: #f5f3ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: block; position: relative;"><input type="radio" name="color" value="#f5f3ff" style="display:none;"></label>
                         </div>
                         <div style="width: 1px; height: 20px; background: #eee;"></div>
                         <button type="button" onclick="workediaOpenMediaUploader('note_quick_img')" class="auth-btn-link" style="color: #000; text-decoration: none; font-size: 20px; padding: 0; display: flex; align-items: center;" title="إدراج صورة"><span class="dashicons dashicons-format-image" style="font-size: 24px; width: 24px; height: 24px;"></span></button>
@@ -166,12 +170,20 @@ function workediaEditNote(note) {
     document.getElementById('workedia-note-modal').style.display = 'flex';
 }
 
-function workediaRefreshNotebook() {
-    fetch(ajaxurl + '?action=workedia_get_notebook_grid_ajax')
+function workediaRefreshNotebook(search = '') {
+    fetch(ajaxurl + `?action=workedia_get_notebook_grid_ajax&search=${encodeURIComponent(search)}`)
     .then(r => r.text())
     .then(html => {
         document.getElementById('workedia-notebook-grid').innerHTML = html;
     });
+}
+
+let searchTimeout;
+function workediaSearchNotes(val) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        workediaRefreshNotebook(val);
+    }, 300);
 }
 
 function workediaDeleteNote(id) {

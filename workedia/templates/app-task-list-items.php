@@ -7,7 +7,8 @@
 <?php else: foreach ($tasks as $task):
     $is_overdue = (strtotime($task->deadline) < time() && $task->status !== 'completed');
 ?>
-    <div class="task-item" style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; background: <?php echo $is_overdue ? '#fff5f5' : 'transparent'; ?>;">
+    <div class="task-item" data-id="<?php echo $task->id; ?>" data-deadline="<?php echo $task->deadline; ?>" data-status="<?php echo $task->status; ?>" style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; background: <?php echo $is_overdue ? '#fff5f5' : 'transparent'; ?>;">
+        <div class="task-drag-handle" style="cursor: grab; color: #cbd5e0; padding-top: 5px;"><span class="dashicons dashicons-menu"></span></div>
         <div class="task-checkbox" style="padding-top: 5px;">
             <input type="checkbox" <?php echo $task->status === 'completed' ? 'checked' : ''; ?> onchange="workediaToggleTask(<?php echo $task->id; ?>, this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
         </div>

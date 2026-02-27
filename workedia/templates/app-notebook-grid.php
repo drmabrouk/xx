@@ -26,7 +26,7 @@
         <?php if ($note->tags): ?>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                 <?php foreach (explode(',', $note->tags) as $tag): ?>
-                    <span style="background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;"><?php echo esc_html(trim($tag)); ?></span>
+                    <span class="note-tag" style="background: rgba(0,0,0,0.06); padding: 3px 10px; border-radius: 50px; font-size: 10px; font-weight: 800; border: 1px solid rgba(0,0,0,0.05);"><span class="dashicons dashicons-tag" style="font-size: 12px; width:12px; height:12px; margin-left:4px;"></span><?php echo esc_html(trim($tag)); ?></span>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
