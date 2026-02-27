@@ -60,8 +60,10 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_save_note', $plugin_public, 'ajax_save_note');
         $this->loader->add_action('wp_ajax_workedia_delete_note', $plugin_public, 'ajax_delete_note');
         $this->loader->add_action('wp_ajax_workedia_share_note', $plugin_public, 'ajax_share_note');
+        $this->loader->add_action('wp_ajax_workedia_get_notebook_grid_ajax', $plugin_public, 'ajax_get_notebook_grid');
 
         // Task List AJAX
+        $this->loader->add_action('wp_ajax_workedia_get_tasklist_items_ajax', $plugin_public, 'ajax_get_tasklist_items');
         $this->loader->add_action('wp_ajax_workedia_save_task', $plugin_public, 'ajax_save_task');
         $this->loader->add_action('wp_ajax_workedia_delete_task', $plugin_public, 'ajax_delete_task');
         $this->loader->add_action('wp_ajax_workedia_toggle_task', $plugin_public, 'ajax_toggle_task');

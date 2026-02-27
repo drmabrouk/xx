@@ -5,37 +5,37 @@
         <button onclick="workediaOpenNoteModal()" class="workedia-btn" style="width: auto;">+ ملاحظة جديدة</button>
     </div>
 
-    <div class="notebook-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+    <div id="workedia-notebook-grid" class="notebook-grid">
         <?php
         $notes = Workedia_Notebook::get_notes(get_current_user_id());
-        if (empty($notes)): ?>
-            <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: #f8fafc; border: 2px dashed #cbd5e0; border-radius: 12px; color: #718096;">
-                <span class="dashicons dashicons-sticky" style="font-size: 48px; width: 48px; height: 48px; opacity: 0.5;"></span>
-                <p>لا توجد ملاحظات حالياً. ابدأ بتدوين أفكارك الآن!</p>
-            </div>
-        <?php else: foreach ($notes as $note): ?>
-            <div class="note-sticky" style="background: <?php echo esc_attr($note->color); ?>; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; border: 1px solid rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.4);"><?php echo date('Y-m-d', strtotime($note->updated_at)); ?></span>
-                    <div class="note-actions">
-                        <button onclick='workediaEditNote(<?php echo json_encode($note); ?>)' style="background: none; border: none; cursor: pointer; color: rgba(0,0,0,0.5);"><span class="dashicons dashicons-edit" style="font-size: 16px;"></span></button>
-                        <button onclick="workediaDeleteNote(<?php echo $note->id; ?>)" style="background: none; border: none; cursor: pointer; color: #e53e3e;"><span class="dashicons dashicons-trash" style="font-size: 16px;"></span></button>
-                    </div>
-                </div>
-                <?php if ($note->image_url): ?>
-                    <img src="<?php echo esc_url($note->image_url); ?>" style="width: 100%; border-radius: 8px; margin-bottom: 10px; max-height: 150px; object-fit: cover;">
-                <?php endif; ?>
-                <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 800;"><?php echo esc_html($note->title); ?></h3>
-                <div style="font-size: 14px; line-height: 1.6; margin-bottom: 15px;"><?php echo wp_kses_post($note->content); ?></div>
-                <?php if ($note->tags): ?>
-                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                        <?php foreach (explode(',', $note->tags) as $tag): ?>
-                            <span style="background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;"><?php echo esc_html(trim($tag)); ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; endif; ?>
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-notebook-grid.php';
+        ?>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div id="workedia-share-modal" class="workedia-modal-overlay">
+    <div class="workedia-modal-content" style="max-width: 400px;">
+        <div class="workedia-modal-header">
+            <h3>مشاركة الملاحظة</h3>
+            <button class="workedia-modal-close" onclick="document.getElementById('workedia-share-modal').style.display='none'">&times;</button>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">اختر العضو الذي ترغب في مشاركة هذه الملاحظة معه:</p>
+            <input type="hidden" id="share-note-id">
+            <select id="share-user-id" class="workedia-select">
+                <option value="">-- اختر عضواً --</option>
+                <?php
+                $staff = Workedia_DB::get_staff(['number' => -1]);
+                foreach ($staff as $s) {
+                    if ($s->ID != get_current_user_id()) {
+                        echo '<option value="' . $s->ID . '">' . esc_html($s->display_name) . '</option>';
+                    }
+                }
+                ?>
+            </select>
+            <button onclick="workediaShareNote()" class="workedia-btn" style="width: 100%; margin-top: 15px;">تأكيد المشاركة</button>
+        </div>
     </div>
 </div>
 
@@ -98,6 +98,14 @@ function workediaEditNote(note) {
     document.getElementById('workedia-note-modal').style.display = 'flex';
 }
 
+function workediaRefreshNotebook() {
+    fetch(ajaxurl + '?action=workedia_get_notebook_grid_ajax')
+    .then(r => r.text())
+    .then(html => {
+        document.getElementById('workedia-notebook-grid').innerHTML = html;
+    });
+}
+
 function workediaDeleteNote(id) {
     if (!confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) return;
     const fd = new FormData();
@@ -105,7 +113,34 @@ function workediaDeleteNote(id) {
     fd.append('id', id);
     fd.append('nonce', '<?php echo wp_create_nonce("workedia_notebook_action"); ?>');
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
-        if (res.success) location.reload();
+        if (res.success) {
+            workediaShowNotification('تم حذف الملاحظة');
+            workediaRefreshNotebook();
+        }
+    });
+}
+
+function workediaOpenShareModal(noteId) {
+    document.getElementById('share-note-id').value = noteId;
+    document.getElementById('workedia-share-modal').style.display = 'flex';
+}
+
+function workediaShareNote() {
+    const noteId = document.getElementById('share-note-id').value;
+    const userId = document.getElementById('share-user-id').value;
+    if (!userId) return;
+
+    const fd = new FormData();
+    fd.append('action', 'workedia_share_note');
+    fd.append('note_id', noteId);
+    fd.append('user_id', userId);
+    fd.append('nonce', '<?php echo wp_create_nonce("workedia_notebook_action"); ?>');
+
+    fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+        if (res.success) {
+            workediaShowNotification('تمت مشاركة الملاحظة بنجاح');
+            document.getElementById('workedia-share-modal').style.display = 'none';
+        } else alert(res.data);
     });
 }
 
@@ -117,7 +152,8 @@ document.getElementById('workedia-note-form').addEventListener('submit', functio
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
         if (res.success) {
             workediaShowNotification('تم حفظ الملاحظة');
-            location.reload();
+            document.getElementById('workedia-note-modal').style.display = 'none';
+            workediaRefreshNotebook();
         } else alert(res.data);
     });
 });
