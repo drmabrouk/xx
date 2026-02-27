@@ -228,6 +228,7 @@ class Workedia_Activator {
             task_date datetime,
             deadline datetime,
             reminder_at datetime,
+            priority enum('low', 'medium', 'high') DEFAULT 'medium',
             sort_order int DEFAULT 0,
             status varchar(20) DEFAULT 'pending',
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,

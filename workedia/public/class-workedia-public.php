@@ -37,6 +37,25 @@ class Workedia_Public {
         return false;
     }
 
+    public function add_pwa_manifest() {
+        echo '<link rel="manifest" href="' . WORKEDIA_PLUGIN_URL . 'manifest.json">';
+        echo '<meta name="theme-color" content="#F12D4D">';
+        echo '<link rel="apple-touch-icon" href="https://irseg.org/wp-content/uploads/2024/01/cropped-favicon-192x192.png">';
+        ?>
+        <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('<?php echo WORKEDIA_PLUGIN_URL; ?>service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+        </script>
+        <?php
+    }
+
     public function restrict_admin_access() {
         if (is_user_logged_in()) {
             $status = get_user_meta(get_current_user_id(), 'workedia_account_status', true);
@@ -1987,7 +2006,13 @@ class Workedia_Public {
 
     public function ajax_get_tasklist_items() {
         if (!is_user_logged_in()) wp_die();
-        $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
+        $filters = [
+            'search' => sanitize_text_field($_GET['search'] ?? ''),
+            'status' => sanitize_text_field($_GET['status'] ?? 'all'),
+            'priority' => sanitize_text_field($_GET['priority'] ?? 'all'),
+            'date' => sanitize_text_field($_GET['date'] ?? '')
+        ];
+        $tasks = Workedia_TaskList::get_tasks(get_current_user_id(), $filters);
         include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
         wp_die();
     }

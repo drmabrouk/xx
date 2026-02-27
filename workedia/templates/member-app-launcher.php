@@ -37,7 +37,7 @@
         </p>
     </div>
 
-    <div class="app-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 10px; max-width: 1200px; margin: 0 auto;">
+    <div class="app-grid" style="display: grid; gap: 20px; padding: 10px; max-width: 1200px; margin: 0 auto;">
         <!-- Profile App -->
         <a href="<?php echo add_query_arg('workedia_tab', 'my-profile'); ?>" class="app-card" data-hint="قم بتحديث بياناتك الشخصية، وتغيير كلمة المرور، ومتابعة حالة عضويتك في النظام.">
             <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -165,6 +165,28 @@ function workediaUploadLauncherPhoto(memberId) {
 </script>
 
 <style>
+.app-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 1100px) {
+    .app-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 850px) {
+    .app-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .app-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 .launcher-avatar-wrapper:hover .photo-overlay {
     opacity: 1 !important;
 }

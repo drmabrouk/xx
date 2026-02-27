@@ -40,6 +40,7 @@ class Workedia {
         $plugin_public = new Workedia_Public($this->get_plugin_name(), $this->get_version());
         $this->loader->add_filter('show_admin_bar', $plugin_public, 'hide_admin_bar_for_non_admins');
         $this->loader->add_action('admin_init', $plugin_public, 'restrict_admin_access');
+        $this->loader->add_action('wp_head', $plugin_public, 'add_pwa_manifest');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_footer', $plugin_public, 'inject_global_alerts');
         $this->loader->add_action('init', $plugin_public, 'register_shortcodes');

@@ -1,0 +1,22 @@
+{
+    "name": "Workedia Professional Platform",
+    "short_name": "Workedia",
+    "description": "نظام شامل لإدارة الأعضاء والخدمات الرقمية",
+    "start_url": "/workedia-admin",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#F12D4D",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "https://irseg.org/wp-content/uploads/2024/01/cropped-favicon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://irseg.org/wp-content/uploads/2024/01/cropped-favicon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

@@ -191,7 +191,7 @@ function renderBuilder() {
                     <button onclick="removeFormField(${f.id})" style="background:none; border:none; cursor:pointer; color:#e53e3e;" title="حذف"><span class="dashicons dashicons-trash"></span></button>
                 </div>
             </div>
-            <label style="display:block; margin-bottom:8px; font-weight:700;">${f.label}</label>
+            <label style="display:block; margin-bottom:8px; font-weight:700;">${escapeHtml(f.label)}</label>
             ${renderFieldPreview(f)}
         </div>
     `).join('');
@@ -293,6 +293,12 @@ function workediaViewSubmissions(id, title) {
     });
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function renderSubmissions(data) {
     const container = document.getElementById('submissions-container');
     let csvHeader = "Time";
@@ -315,7 +321,7 @@ function renderSubmissions(data) {
         let dataHtml = '';
         let csvRow = `"${s.submitted_at}"`;
         for (let k in rowData) {
-            dataHtml += `<div><span style="color:#94a3b8; font-size:11px;">${k}:</span> <strong>${rowData[k]}</strong></div>`;
+            dataHtml += `<div><span style="color:#94a3b8; font-size:11px;">${escapeHtml(k)}:</span> <strong>${escapeHtml(rowData[k])}</strong></div>`;
             csvRow += `,"${rowData[k].toString().replace(/"/g, '""')}"`;
         }
         html += `<tr>
@@ -344,7 +350,7 @@ function workediaDownloadResponsePDF(data, time) {
     const reportWindow = window.open('', '_blank');
     let dataRows = '';
     for (let k in data) {
-        dataRows += `<tr><td style="padding:12px; border-bottom:1px solid #eee; font-weight:700; width:30%;">${k}</td><td style="padding:12px; border-bottom:1px solid #eee;">${data[k]}</td></tr>`;
+        dataRows += `<tr><td style="padding:12px; border-bottom:1px solid #eee; font-weight:700; width:30%;">${escapeHtml(k)}</td><td style="padding:12px; border-bottom:1px solid #eee;">${escapeHtml(data[k])}</td></tr>`;
     }
 
     const content = `
