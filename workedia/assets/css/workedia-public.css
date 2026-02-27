@@ -593,3 +593,43 @@
     .workedia-info-grid, .workedia-contact-grid { grid-template-columns: 1fr; }
     .workedia-hero-section h1 { font-size: 2em; }
 }
+
+/* Notebook App Styles */
+.notebook-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+.note-sticky {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+}
+.note-sticky:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.note-actions button {
+    opacity: 0.3;
+    transition: 0.2s;
+}
+.note-sticky:hover .note-actions button {
+    opacity: 1;
+}
+
+/* Task List App Styles */
+.task-item {
+    border-right: 4px solid transparent;
+}
+.task-item:hover {
+    border-right-color: var(--workedia-primary-color);
+}
+.task-item .subtasks-area {
+    opacity: 0.8;
+}
+.task-item:hover .subtasks-area {
+    opacity: 1;
+}
+.task-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}

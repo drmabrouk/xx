@@ -1901,6 +1901,13 @@ class Workedia_Public {
         else wp_send_json_error('Failed to share note');
     }
 
+    public function ajax_get_notebook_grid() {
+        if (!is_user_logged_in()) wp_die();
+        $notes = Workedia_Notebook::get_notes(get_current_user_id());
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-notebook-grid.php';
+        wp_die();
+    }
+
     // Task List AJAX Handlers
     public function ajax_save_task() {
         if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
@@ -1938,6 +1945,13 @@ class Workedia_Public {
         check_ajax_referer('workedia_tasklist_action', 'nonce');
         if (Workedia_TaskList::toggle_subtask($_POST['id'], $_POST['is_completed'])) wp_send_json_success();
         else wp_send_json_error('Failed to toggle subtask');
+    }
+
+    public function ajax_get_tasklist_items() {
+        if (!is_user_logged_in()) wp_die();
+        $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
+        wp_die();
     }
 
     public function inject_global_alerts() {

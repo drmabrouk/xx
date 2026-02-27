@@ -58,6 +58,10 @@ if (!class_exists('Workedia_TaskList')) {
 
         public static function delete_task($task_id, $user_id) {
             global $wpdb;
+            // Security Check
+            $owner = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM {$wpdb->prefix}workedia_tasks WHERE id = %d", $task_id));
+            if ($owner != $user_id) return false;
+
             $wpdb->delete($wpdb->prefix . 'workedia_subtasks', ['task_id' => intval($task_id)]);
             return $wpdb->delete($wpdb->prefix . 'workedia_tasks', ['id' => intval($task_id), 'user_id' => intval($user_id)]);
         }
