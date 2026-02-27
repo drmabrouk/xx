@@ -157,7 +157,6 @@ function calculateBMI() {
     statusEl.style.color = color;
     valueEl.style.color = color;
     boxEl.style.borderColor = color;
-    tipEl.innerText = tip;
 }
 
 function toggleBMISystem() {
