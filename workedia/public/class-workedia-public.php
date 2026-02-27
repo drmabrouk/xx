@@ -1123,16 +1123,30 @@ class Workedia_Public {
         $user_id = get_current_user_id();
         $is_member = in_array('subscriber', (array)wp_get_current_user()->roles);
 
-        $first_name = sanitize_text_field($_POST['first_name']);
-        $last_name = sanitize_text_field($_POST['last_name']);
-        $email = sanitize_email($_POST['user_email']);
-        $pass = $_POST['user_pass'];
+        $first_name = sanitize_text_field($_POST['first_name'] ?? '');
+        $last_name = sanitize_text_field($_POST['last_name'] ?? '');
+        $pass = $_POST['user_pass'] ?? '';
 
         $user_data = ['ID' => $user_id];
 
-        if (!$is_member) {
+        if ($is_member) {
+            // Member update logic (Sync with workedia_members table)
+            global $wpdb;
+            $member_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}workedia_members WHERE wp_user_id = %d", $user_id));
+            if ($member_id) {
+                $member_data = [
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                    'phone' => sanitize_text_field($_POST['phone'] ?? ''),
+                    'residence_street' => sanitize_textarea_field($_POST['residence_street'] ?? '')
+                ];
+                Workedia_DB::update_member($member_id, $member_data);
+            }
+        } else {
+            // Admin update logic
+            $email = sanitize_email($_POST['user_email'] ?? '');
             $user_data['display_name'] = trim($first_name . ' ' . $last_name);
-            $user_data['user_email'] = $email;
+            if ($email) $user_data['user_email'] = $email;
             update_user_meta($user_id, 'first_name', $first_name);
             update_user_meta($user_id, 'last_name', $last_name);
         }
@@ -1925,6 +1939,22 @@ class Workedia_Public {
         $id = intval($_POST['id']);
         if (Workedia_DB::update_ticket_status($id, 'closed')) wp_send_json_success();
         else wp_send_json_error('Failed to close ticket');
+    }
+
+    public function ajax_delete_notification() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_notifications_action', 'nonce');
+
+        $notif_id = sanitize_text_field($_POST['notif_id']);
+        $user_id = get_current_user_id();
+
+        $dismissed = get_user_meta($user_id, 'workedia_dismissed_notifications', true) ?: [];
+        if (!in_array($notif_id, $dismissed)) {
+            $dismissed[] = $notif_id;
+            update_user_meta($user_id, 'workedia_dismissed_notifications', $dismissed);
+        }
+
+        wp_send_json_success();
     }
 
     // Notebook AJAX Handlers

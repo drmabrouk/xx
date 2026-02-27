@@ -38,15 +38,6 @@
     </div>
 
     <div class="app-grid" style="display: grid; gap: 20px; padding: 10px; max-width: 1200px; margin: 0 auto;">
-        <!-- Profile App -->
-        <a href="<?php echo add_query_arg('workedia_tab', 'my-profile'); ?>" class="app-card" data-hint="قم بتحديث بياناتك الشخصية، وتغيير كلمة المرور، ومتابعة حالة عضويتك في النظام.">
-            <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <span class="dashicons dashicons-admin-users"></span>
-            </div>
-            <h3>الملف الشخصي</h3>
-            <p>إدارة بياناتك الشخصية وحسابك</p>
-        </a>
-
         <!-- Notebook App -->
         <a href="<?php echo add_query_arg('workedia_tab', 'notebook'); ?>" class="app-card" data-hint="سجل أفكارك، ملاحظاتك السريعة، وصورك في مساحة عمل مرنة تشبه الورق اللاصق.">
             <div class="app-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);">

@@ -13,6 +13,7 @@ class Workedia_Settings {
             'font_color' => '#111F35',
             'border_color' => '#e2e8f0',
             'btn_color' => '#111F35',
+            'site_name_size' => '1.4em',
             'font_size' => '15px',
             'font_weight' => '400',
             'line_spacing' => '1.5',

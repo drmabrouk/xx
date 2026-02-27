@@ -60,6 +60,7 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_get_ticket_details', $plugin_public, 'ajax_get_ticket_details');
         $this->loader->add_action('wp_ajax_workedia_add_ticket_reply', $plugin_public, 'ajax_add_ticket_reply');
         $this->loader->add_action('wp_ajax_workedia_close_ticket', $plugin_public, 'ajax_close_ticket');
+        $this->loader->add_action('wp_ajax_workedia_delete_notification', $plugin_public, 'ajax_delete_notification');
 
         // Notebook AJAX
         $this->loader->add_action('wp_ajax_workedia_save_note', $plugin_public, 'ajax_save_note');
