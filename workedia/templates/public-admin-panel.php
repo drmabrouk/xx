@@ -436,6 +436,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         <!-- LEFT SIDE (Visual Left): Logo, Dropdown, Notifications, Messages -->
         <div class="workedia-header-actions-wrapper" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
 
+            <!-- Install Button (PWA) -->
+            <button id="workedia-install-btn" class="workedia-header-circle-icon" title="تثبيت التطبيق على الجهاز" style="display: none; background: var(--workedia-primary-color); color: white; border: none;">
+                <span class="dashicons dashicons-download"></span>
+            </button>
+
             <!-- Messages Icon -->
             <a href="<?php echo add_query_arg('workedia_tab', 'messaging'); ?>" class="workedia-header-circle-icon" title="المراسلات والشكاوى">
                 <span class="dashicons dashicons-email"></span>
