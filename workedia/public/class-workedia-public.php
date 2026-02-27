@@ -955,7 +955,16 @@ class Workedia_Public {
             wp_send_json_error('Security Check Failed: Unauthorized access.');
         }
 
-        Workedia_DB::update_member($member_id, $_POST);
+        // Mass Assignment protection: Explicitly define allowed fields
+        $allowed = ['first_name', 'last_name', 'residence_city', 'residence_street', 'phone', 'email'];
+        $filtered_data = [];
+        foreach ($allowed as $field) {
+            if (isset($_POST[$field])) {
+                $filtered_data[$field] = $_POST[$field];
+            }
+        }
+
+        Workedia_DB::update_member($member_id, $filtered_data);
         wp_send_json_success('Updated');
     }
 
