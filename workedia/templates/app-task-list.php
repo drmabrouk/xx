@@ -1,14 +1,35 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container tasklist-app">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-editor-ul"></span> مدير المهام (Task List)</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-editor-ul" style="color:var(--workedia-primary-color);"></span> مدير المهام</h2>
         <div style="display: flex; gap: 10px;">
-            <button onclick="workediaSyncGoogle()" class="workedia-btn workedia-btn-outline" style="width: auto; border-color: #4285F4; color: #4285F4 !important;"><span class="dashicons dashicons-google"></span> مزامنة Google</button>
-            <button onclick="workediaOpenTaskModal()" class="workedia-btn" style="width: auto;">+ مهمة جديدة</button>
+            <button onclick="workediaSyncGoogle()" class="workedia-btn workedia-btn-outline" style="width: auto; border-color: #4285F4; color: #4285F4 !important; background:white;"><span class="dashicons dashicons-google"></span> مزامنة Google</button>
         </div>
     </div>
 
-    <div id="workedia-tasklist-items" class="task-list-container" style="background: white; border: 1px solid var(--workedia-border-color); border-radius: 12px; overflow: hidden;">
+    <!-- Sophisticated Task Creator -->
+    <div class="quick-task-creator" style="background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; border: 1px solid #f1f5f9; padding: 15px; transition: 0.3s;">
+        <form id="workedia-quick-task-form" style="display: flex; gap: 15px; align-items: center;">
+            <div style="flex: 1; position: relative;">
+                <input type="text" name="title" class="workedia-input" placeholder="ما هي المهمة التالية؟" style="border: none; padding: 10px 0; font-size: 1.1em; font-weight: 600; border-radius: 0;" required>
+                <div class="task-creation-options" style="display: flex; gap: 20px; margin-top: 10px;">
+                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;">
+                        <span class="dashicons dashicons-calendar-alt" style="font-size:16px;"></span>
+                        <input type="datetime-local" name="deadline" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px; color: #64748b; font-size: 12px;">
+                        <span class="dashicons dashicons-bell" style="font-size:16px;"></span>
+                        <input type="datetime-local" name="reminder_at" style="border:none; color:inherit; font-size:inherit; padding:0; cursor:pointer; background:transparent;">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="workedia-btn" style="width: 50px; height: 50px; border-radius: 12px; padding: 0;">
+                <span class="dashicons dashicons-plus" style="font-size: 24px; width:24px; height:24px;"></span>
+            </button>
+        </form>
+    </div>
+
+    <div id="workedia-tasklist-items" class="task-list-container" style="background: white; border: 1px solid var(--workedia-border-color); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
         <?php
         $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
         include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
@@ -121,6 +142,25 @@ function workediaToggleSubtask(id, completed) {
 function workediaSyncGoogle() {
     alert('سيتم توجيهك الآن لربط حساب Google وتفعيل مزامنة التقويم والمهام اليومية.');
 }
+
+document.getElementById('workedia-quick-task-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fd = new FormData(this);
+    fd.append('action', 'workedia_save_task');
+    fd.append('nonce', '<?php echo wp_create_nonce("workedia_tasklist_action"); ?>');
+
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+        btn.disabled = false;
+        if (res.success) {
+            workediaShowNotification('تم إضافة المهمة بنجاح');
+            this.reset();
+            workediaRefreshTaskList();
+        } else alert(res.data);
+    });
+});
 
 document.getElementById('workedia-task-form').addEventListener('submit', function(e) {
     e.preventDefault();

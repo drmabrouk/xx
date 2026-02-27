@@ -634,6 +634,10 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.04);
     border: 1px solid rgba(255,255,255,0.7);
 }
+.quick-note-creator:focus-within, .quick-task-creator:focus-within {
+    border-color: var(--workedia-primary-color) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+}
 
 /* Task List App Styles */
 .task-item {

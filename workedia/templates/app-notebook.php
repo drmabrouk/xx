@@ -1,8 +1,40 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="workedia-app-container notebook-app">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-edit"></span> دفتر الملاحظات (Notebook)</h2>
-        <button onclick="workediaOpenNoteModal()" class="workedia-btn" style="width: auto;">+ ملاحظة جديدة</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="margin: 0; font-weight: 800; color: var(--workedia-dark-color);"><span class="dashicons dashicons-edit" style="color:var(--workedia-primary-color);"></span> دفتر الملاحظات</h2>
+    </div>
+
+    <!-- Sophisticated Quick Note Creation -->
+    <div class="quick-note-creator" style="background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; border: 1px solid #f1f5f9; overflow: hidden; transition: 0.3s;" id="note-creator-box">
+        <div id="note-collapsed-state" onclick="workediaExpandNoteCreator()" style="padding: 15px 25px; cursor: pointer; color: #94a3b8; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+            <span>ابدأ بتدوين فكرة جديدة هنا...</span>
+            <span class="dashicons dashicons-plus-alt" style="color: var(--workedia-primary-color);"></span>
+        </div>
+        <div id="note-expanded-state" style="display: none; padding: 25px;">
+            <form id="workedia-quick-note-form">
+                <input type="text" name="title" class="workedia-input" placeholder="عنوان الملاحظة" style="border: none; font-size: 1.2em; font-weight: 800; padding: 0 0 15px 0; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; border-radius: 0;">
+                <textarea name="content" class="workedia-textarea" rows="4" placeholder="اكتب محتوى ملاحظتك هنا بالتفصيل..." style="border: none; padding: 0; resize: none; font-size: 1.05em; line-height: 1.6;"></textarea>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="color-picker-simple" style="display: flex; gap: 8px;">
+                            <label style="background: #ffffff; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; cursor: pointer;"><input type="radio" name="color" value="#ffffff" checked style="display:none;"></label>
+                            <label style="background: #fff5f5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fff5f5" style="display:none;"></label>
+                            <label style="background: #f0fff4; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#f0fff4" style="display:none;"></label>
+                            <label style="background: #fffaf0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#fffaf0" style="display:none;"></label>
+                            <label style="background: #ebf8ff; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;"><input type="radio" name="color" value="#ebf8ff" style="display:none;"></label>
+                        </div>
+                        <div style="width: 1px; height: 20px; background: #eee;"></div>
+                        <button type="button" onclick="workediaOpenMediaUploader('note_quick_img')" class="auth-btn-link" style="color: #64748b; text-decoration: none; font-size: 13px;"><span class="dashicons dashicons-format-image"></span> إضافة صورة</button>
+                        <input type="hidden" name="image_url" id="note_quick_img">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" onclick="workediaCollapseNoteCreator()" class="workedia-btn workedia-btn-outline" style="width: auto; background: transparent;">إلغاء</button>
+                        <button type="submit" class="workedia-btn" style="width: auto; padding: 0 30px;">حفظ الملاحظة</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="workedia-notebook-grid" class="notebook-grid">
@@ -79,6 +111,41 @@
 </div>
 
 <script>
+function workediaExpandNoteCreator() {
+    document.getElementById('note-collapsed-state').style.display = 'none';
+    document.getElementById('note-expanded-state').style.display = 'block';
+    document.getElementById('note-creator-box').style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)';
+    document.querySelector('#workedia-quick-note-form [name="title"]').focus();
+}
+
+function workediaCollapseNoteCreator() {
+    document.getElementById('note-collapsed-state').style.display = 'flex';
+    document.getElementById('note-expanded-state').style.display = 'none';
+    document.getElementById('note-creator-box').style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
+}
+
+document.getElementById('workedia-quick-note-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fd = new FormData(this);
+    fd.append('action', 'workedia_save_note');
+    fd.append('nonce', '<?php echo wp_create_nonce("workedia_notebook_action"); ?>');
+
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحفظ...';
+
+    fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+        btn.disabled = false;
+        btn.innerText = 'حفظ الملاحظة';
+        if (res.success) {
+            workediaShowNotification('تم إضافة الملاحظة بنجاح');
+            this.reset();
+            workediaCollapseNoteCreator();
+            workediaRefreshNotebook();
+        } else alert(res.data);
+    });
+});
+
 function workediaOpenNoteModal() {
     document.getElementById('workedia-note-form').reset();
     document.getElementById('note-id').value = '';
