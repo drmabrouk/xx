@@ -15,9 +15,9 @@
                 <span class="note-card-date"><?php echo date_i18n('j M Y', strtotime($note->updated_at)); ?></span>
                 <div class="note-actions">
                     <?php if ($note->user_id == get_current_user_id()): ?>
-                        <button onclick='workediaOpenShareModal(<?php echo $note->id; ?>)' title="مشاركة"><span class="dashicons dashicons-share"></span></button>
-                        <button onclick='workediaEditNote(<?php echo esc_attr(json_encode($note)); ?>)' title="تعديل"><span class="dashicons dashicons-edit"></span></button>
-                        <button onclick="workediaDeleteNote(<?php echo $note->id; ?>)" class="delete" title="حذف"><span class="dashicons dashicons-trash"></span></button>
+                        <button onclick='workediaOpenShareModal(<?php echo $note->id; ?>)' title="مشاركة" style="border-radius: 50%;"><span class="dashicons dashicons-share"></span></button>
+                        <button onclick='workediaEditNote(<?php echo esc_attr(json_encode($note)); ?>)' title="تعديل" style="border-radius: 50%;"><span class="dashicons dashicons-edit"></span></button>
+                        <button onclick="workediaDeleteNote(<?php echo $note->id; ?>)" class="delete" title="حذف" style="border-radius: 50%;"><span class="dashicons dashicons-trash"></span></button>
                     <?php else: ?>
                         <span class="dashicons dashicons-groups shared-icon" title="ملاحظة مشتركة"></span>
                     <?php endif; ?>

@@ -23,6 +23,7 @@ class Workedia {
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-tasklist.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-formbuilder.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-bmi.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-documents.php';
         require_once WORKEDIA_PLUGIN_DIR . 'admin/class-workedia-admin.php';
         require_once WORKEDIA_PLUGIN_DIR . 'public/class-workedia-public.php';
         $this->loader = new Workedia_Loader();
@@ -84,6 +85,11 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_save_bmi', $plugin_public, 'ajax_save_bmi');
         $this->loader->add_action('wp_ajax_workedia_delete_bmi', $plugin_public, 'ajax_delete_bmi');
         $this->loader->add_action('wp_ajax_workedia_get_bmi_history', $plugin_public, 'ajax_get_bmi_history');
+
+        // Document Archive AJAX
+        $this->loader->add_action('wp_ajax_workedia_upload_doc', $plugin_public, 'ajax_upload_doc');
+        $this->loader->add_action('wp_ajax_workedia_delete_doc', $plugin_public, 'ajax_delete_doc');
+        $this->loader->add_action('wp_ajax_workedia_get_docs_list_ajax', $plugin_public, 'ajax_get_docs_list');
 
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');

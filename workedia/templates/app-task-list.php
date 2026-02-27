@@ -35,7 +35,7 @@
         </form>
     </div>
 
-    <div id="workedia-tasklist-items" class="task-list-container" style="background: white; border: 1px solid var(--workedia-border-color); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+    <div id="workedia-tasklist-items" class="task-list-container" style="background: transparent; border: none; border-radius: 0; overflow: visible; box-shadow: none;">
         <?php
         $tasks = Workedia_TaskList::get_tasks(get_current_user_id());
         include WORKEDIA_PLUGIN_DIR . 'templates/app-task-list-items.php';
@@ -101,7 +101,7 @@ function workediaInitTaskSorting() {
         ghostClass: 'task-ghost',
         onEnd: function() {
             const ids = [];
-            document.querySelectorAll('.task-item').forEach(item => {
+            document.querySelectorAll('.task-card-modern').forEach(item => {
                 ids.push(item.getAttribute('data-id'));
             });
             const fd = new FormData();
@@ -125,7 +125,7 @@ function workediaRefreshTaskList() {
 
 function workediaCheckDueTasks() {
     const now = new Date();
-    document.querySelectorAll('.task-item').forEach(item => {
+    document.querySelectorAll('.task-card-modern').forEach(item => {
         const deadline = item.getAttribute('data-deadline');
         const status = item.getAttribute('data-status');
         const title = item.querySelector('h4').innerText;
@@ -248,7 +248,11 @@ document.getElementById('workedia-task-form').addEventListener('submit', functio
 </script>
 
 <style>
-.task-item:hover { background: #fcfcfc; }
+.task-card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.06);
+    border-color: var(--workedia-primary-color);
+}
 .task-checkbox input[type="checkbox"] {
     accent-color: var(--workedia-primary-color);
 }
