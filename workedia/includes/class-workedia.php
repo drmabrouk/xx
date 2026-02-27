@@ -19,6 +19,8 @@ class Workedia {
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-settings.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-logger.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-notifications.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-notebook.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-tasklist.php';
         require_once WORKEDIA_PLUGIN_DIR . 'admin/class-workedia-admin.php';
         require_once WORKEDIA_PLUGIN_DIR . 'public/class-workedia-public.php';
         $this->loader = new Workedia_Loader();
@@ -53,6 +55,19 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_get_ticket_details', $plugin_public, 'ajax_get_ticket_details');
         $this->loader->add_action('wp_ajax_workedia_add_ticket_reply', $plugin_public, 'ajax_add_ticket_reply');
         $this->loader->add_action('wp_ajax_workedia_close_ticket', $plugin_public, 'ajax_close_ticket');
+
+        // Notebook AJAX
+        $this->loader->add_action('wp_ajax_workedia_save_note', $plugin_public, 'ajax_save_note');
+        $this->loader->add_action('wp_ajax_workedia_delete_note', $plugin_public, 'ajax_delete_note');
+        $this->loader->add_action('wp_ajax_workedia_share_note', $plugin_public, 'ajax_share_note');
+
+        // Task List AJAX
+        $this->loader->add_action('wp_ajax_workedia_save_task', $plugin_public, 'ajax_save_task');
+        $this->loader->add_action('wp_ajax_workedia_delete_task', $plugin_public, 'ajax_delete_task');
+        $this->loader->add_action('wp_ajax_workedia_toggle_task', $plugin_public, 'ajax_toggle_task');
+        $this->loader->add_action('wp_ajax_workedia_add_subtask', $plugin_public, 'ajax_add_subtask');
+        $this->loader->add_action('wp_ajax_workedia_toggle_subtask', $plugin_public, 'ajax_toggle_subtask');
+
         $this->loader->add_action('wp_ajax_workedia_update_profile_ajax', $plugin_public, 'ajax_update_profile');
         $this->loader->add_action('wp_ajax_workedia_print', $plugin_public, 'handle_print');
         $this->loader->add_action('wp_ajax_workedia_add_member_ajax', $plugin_public, 'ajax_add_member');

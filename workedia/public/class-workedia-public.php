@@ -1878,6 +1878,68 @@ class Workedia_Public {
         else wp_send_json_error('Failed to close ticket');
     }
 
+    // Notebook AJAX Handlers
+    public function ajax_save_note() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_notebook_action', 'nonce');
+        $id = Workedia_Notebook::save_note($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save note');
+    }
+
+    public function ajax_delete_note() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_notebook_action', 'nonce');
+        if (Workedia_Notebook::delete_note($_POST['id'], get_current_user_id())) wp_send_json_success();
+        else wp_send_json_error('Failed to delete note');
+    }
+
+    public function ajax_share_note() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_notebook_action', 'nonce');
+        if (Workedia_Notebook::share_note($_POST['note_id'], $_POST['user_id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to share note');
+    }
+
+    // Task List AJAX Handlers
+    public function ajax_save_task() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        $id = Workedia_TaskList::save_task($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save task');
+    }
+
+    public function ajax_delete_task() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        if (Workedia_TaskList::delete_task($_POST['id'], get_current_user_id())) wp_send_json_success();
+        else wp_send_json_error('Failed to delete task');
+    }
+
+    public function ajax_toggle_task() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        $res = Workedia_TaskList::save_task($_POST);
+        if ($res) wp_send_json_success();
+        else wp_send_json_error('Failed to toggle task');
+    }
+
+    public function ajax_add_subtask() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        $id = Workedia_TaskList::add_subtask($_POST['task_id'], $_POST['title']);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to add subtask');
+    }
+
+    public function ajax_toggle_subtask() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_tasklist_action', 'nonce');
+        if (Workedia_TaskList::toggle_subtask($_POST['id'], $_POST['is_completed'])) wp_send_json_success();
+        else wp_send_json_error('Failed to toggle subtask');
+    }
+
     public function inject_global_alerts() {
         if (!is_user_logged_in()) return;
 
