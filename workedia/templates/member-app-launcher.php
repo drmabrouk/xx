@@ -123,6 +123,15 @@
             <h3>منشئ السيرة الذاتية</h3>
             <p>بناء CV احترافي متوافق مع ATS</p>
         </a>
+
+        <!-- Reference Manager App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'reference-manager'); ?>" class="app-card" data-hint="إدارة المراجع العلمية، الاقتباسات بنمط APA/MLA، وتنظيم الفقرات البحثية للطلاب والباحثين.">
+            <div class="app-icon" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                <span class="dashicons dashicons-welcome-learn-more"></span>
+            </div>
+            <h3>مدير المراجع</h3>
+            <p>تنظيم المراجع والاقتباسات العلمية</p>
+        </a>
     </div>
 </div>
 

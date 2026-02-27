@@ -2106,6 +2106,99 @@ class Workedia_Public {
         else wp_send_json_error('Failed to restore version');
     }
 
+    // Reference Manager AJAX Handlers
+    public function ajax_save_research_project() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $id = Workedia_ReferenceManager::save_project($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save project');
+    }
+
+    public function ajax_delete_research_project() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        if (Workedia_ReferenceManager::delete_project($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete project');
+    }
+
+    public function ajax_save_reference() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $id = Workedia_ReferenceManager::save_reference($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save reference');
+    }
+
+    public function ajax_delete_reference() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        if (Workedia_ReferenceManager::delete_reference($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete reference');
+    }
+
+    public function ajax_save_research_paragraph() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $id = Workedia_ReferenceManager::save_paragraph($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save paragraph');
+    }
+
+    public function ajax_delete_research_paragraph() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        if (Workedia_ReferenceManager::delete_paragraph($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete paragraph');
+    }
+
+    public function ajax_update_paragraph_order() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        if (Workedia_ReferenceManager::update_paragraph_order($_POST['ids'])) wp_send_json_success();
+        else wp_send_json_error('Failed to update order');
+    }
+
+    public function ajax_link_ref_to_para() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        global $wpdb;
+        $wpdb->insert("{$wpdb->prefix}workedia_paragraph_references", [
+            'paragraph_id' => intval($_POST['paragraph_id']),
+            'reference_id' => intval($_POST['reference_id'])
+        ]);
+        wp_send_json_success();
+    }
+
+    public function ajax_smart_search_refs() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $results = Workedia_ReferenceManager::smart_search($_POST['query']);
+        wp_send_json_success($results);
+    }
+
+    public function ajax_export_research_word() {
+        if (!is_user_logged_in()) wp_die();
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $project_id = intval($_GET['project_id']);
+        $html = Workedia_ReferenceManager::export_word($project_id);
+        header("Content-type: application/vnd.ms-word");
+        header("Content-Disposition: attachment;Filename=research_export.doc");
+        echo $html;
+        wp_die();
+    }
+
+    public function ajax_export_research_bibtex() {
+        if (!is_user_logged_in()) wp_die();
+        check_ajax_referer('workedia_ref_manager_action', 'nonce');
+        $project_id = intval($_GET['project_id']);
+        $bib = Workedia_ReferenceManager::export_bibtex($project_id);
+        header("Content-type: text/plain");
+        header("Content-Disposition: attachment;Filename=references.bib");
+        echo $bib;
+        wp_die();
+    }
+
     public function inject_global_alerts() {
         if (!is_user_logged_in()) return;
 

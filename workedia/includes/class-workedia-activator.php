@@ -335,6 +335,64 @@ class Workedia_Activator {
             KEY cv_id (cv_id)
         ) $charset_collate;\n";
 
+        // Scientific Reference Manager Tables
+        $table_name = $wpdb->prefix . 'workedia_research_projects';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            title varchar(255) NOT NULL,
+            description text,
+            citation_style varchar(50) DEFAULT 'apa',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_references';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            project_id mediumint(9),
+            ref_type varchar(50) NOT NULL,
+            title varchar(255) NOT NULL,
+            authors text,
+            year varchar(20),
+            source_title varchar(255),
+            volume varchar(50),
+            issue varchar(50),
+            pages varchar(50),
+            publisher varchar(255),
+            url text,
+            doi varchar(100),
+            notes text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            KEY project_id (project_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_research_paragraphs';
+        $sql .= "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            project_id mediumint(9) NOT NULL,
+            content longtext NOT NULL,
+            sort_order int DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY project_id (project_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_paragraph_references';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            paragraph_id mediumint(9) NOT NULL,
+            reference_id mediumint(9) NOT NULL,
+            PRIMARY KEY  (id),
+            KEY paragraph_id (paragraph_id),
+            KEY reference_id (reference_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
