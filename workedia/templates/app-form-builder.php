@@ -15,10 +15,11 @@
                 <button onclick="workediaOpenFormCreator()" class="workedia-btn workedia-btn-outline" style="width: auto; margin-top: 20px;">ابدأ الآن</button>
             </div>
         <?php else: foreach ($forms as $form): ?>
-            <div class="workedia-stat-card form-card" style="text-align: right; position: relative; overflow: hidden;">
+            <div class="note-modern-card form-card" style="text-align: right; position: relative; overflow: hidden; animation: workediaSlideUp 0.3s ease-out;">
+                <div class="note-card-body">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
                     <div style="background: var(--workedia-pastel-pink); width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: var(--workedia-primary-color);">
-                        <span class="dashicons dashicons-forms"></span>
+                        <span class="dashicons dashicons-forms" style="font-size:24px; width:24px; height:24px;"></span>
                     </div>
                     <div class="workedia-actions-dropdown">
                         <button class="workedia-actions-trigger">...</button>
@@ -29,11 +30,12 @@
                         </div>
                     </div>
                 </div>
-                <h3 style="margin: 0 0 10px 0; font-size: 1.1em; font-weight: 800;"><?php echo esc_html($form->title); ?></h3>
+                <h3 class="note-card-title" style="margin-bottom: 5px;"><?php echo esc_html($form->title); ?></h3>
                 <p style="color: #64748b; font-size: 12px; line-height: 1.5; min-height: 36px;"><?php echo esc_html($form->description); ?></p>
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 13px; font-weight: 700; color: var(--workedia-primary-color);"><?php echo $form->response_count; ?> ردود</span>
+                    <span style="font-size: 13px; font-weight: 800; color: var(--workedia-primary-color);"><?php echo $form->response_count; ?> ردود</span>
                     <span style="font-size: 11px; color: #94a3b8;"><?php echo date('Y-m-d', strtotime($form->created_at)); ?></span>
+                </div>
                 </div>
             </div>
         <?php endforeach; endif; ?>
@@ -59,6 +61,10 @@
                     <label class="workedia-label">وصف النموذج:</label>
                     <textarea id="form-description" class="workedia-textarea" rows="3" placeholder="اكتب نبذة قصيرة للمستخدمين..."></textarea>
                 </div>
+                <div class="workedia-form-group">
+                    <label class="workedia-label">رسالة النجاح المخصصة:</label>
+                    <input type="text" id="form-success-msg" class="workedia-input" placeholder="مثال: شكراً لك! تم استلام ردك.">
+                </div>
 
                 <h4 style="margin: 30px 0 15px 0; font-size: 14px; color: #1a202c; border-bottom: 1px solid #eee; padding-bottom: 8px;">إضافة حقول</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -66,6 +72,8 @@
                     <button class="workedia-btn workedia-btn-outline" onclick="addFormField('textarea')" style="font-size: 11px; padding: 8px;"><span class="dashicons dashicons-editor-paragraph"></span> نص طويل</button>
                     <button class="workedia-btn workedia-btn-outline" onclick="addFormField('number')" style="font-size: 11px; padding: 8px;"><span class="dashicons dashicons-editor-ol"></span> رقم</button>
                     <button class="workedia-btn workedia-btn-outline" onclick="addFormField('email')" style="font-size: 11px; padding: 8px;"><span class="dashicons dashicons-email"></span> بريد إلكتروني</button>
+                    <button class="workedia-btn workedia-btn-outline" onclick="addFormField('date')" style="font-size: 11px; padding: 8px;"><span class="dashicons dashicons-calendar-alt"></span> تاريخ</button>
+                    <button class="workedia-btn workedia-btn-outline" onclick="addFormField('select')" style="font-size: 11px; padding: 8px;"><span class="dashicons dashicons-menu"></span> قائمة منسدلة</button>
                 </div>
             </div>
 
@@ -106,6 +114,7 @@ function workediaOpenFormCreator() {
     currentFormFields = [];
     document.getElementById('form-title').value = '';
     document.getElementById('form-description').value = '';
+    document.getElementById('form-success-msg').value = '';
     renderBuilder();
     document.getElementById('form-creation-modal').style.display = 'flex';
 }
@@ -113,7 +122,26 @@ function workediaOpenFormCreator() {
 function addFormField(type) {
     const label = prompt('أدخل اسم الحقل (مثال: الاسم بالكامل):');
     if (!label) return;
-    currentFormFields.push({ id: Date.now(), type, label, required: false });
+
+    let options = [];
+    if (type === 'select') {
+        const optsStr = prompt('أدخل الخيارات مفصولة بفاصلة (مثال: خيار 1, خيار 2):');
+        if (optsStr) options = optsStr.split(',').map(s => s.trim());
+    }
+
+    currentFormFields.push({
+        id: Date.now(),
+        type,
+        label,
+        required: false,
+        options: options
+    });
+    renderBuilder();
+}
+
+function toggleRequired(id) {
+    const field = currentFormFields.find(f => f.id === id);
+    if (field) field.required = !field.required;
     renderBuilder();
 }
 
@@ -130,19 +158,33 @@ function renderBuilder() {
     }
 
     preview.innerHTML = currentFormFields.map(f => `
-        <div class="builder-item" style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span style="font-size: 11px; font-weight: 800; color: var(--workedia-primary-color); display: block;">${f.type.toUpperCase()}</span>
-                <strong style="font-size: 14px;">${f.label}</strong>
+        <div class="builder-item" style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size: 10px; font-weight: 800; color: var(--workedia-primary-color); text-transform: uppercase;">${f.type} ${f.required ? '<span style="color:#e53e3e;">* مطلوب</span>' : ''}</span>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="toggleRequired(${f.id})" style="background:none; border:none; cursor:pointer; color:#94a3b8;" title="تغيير حالة الإلزام"><span class="dashicons dashicons-flag"></span></button>
+                    <button onclick="removeFormField(${f.id})" style="background:none; border:none; cursor:pointer; color:#e53e3e;" title="حذف"><span class="dashicons dashicons-trash"></span></button>
+                </div>
             </div>
-            <button onclick="removeFormField(${f.id})" style="color: #e53e3e; background: none; border: none; cursor: pointer;"><span class="dashicons dashicons-no-alt"></span></button>
+            <label style="display:block; margin-bottom:8px; font-weight:700;">${f.label}</label>
+            ${renderFieldPreview(f)}
         </div>
     `).join('');
+}
+
+function renderFieldPreview(f) {
+    switch(f.type) {
+        case 'textarea': return '<textarea class="workedia-textarea" disabled rows="2"></textarea>';
+        case 'select': return `<select class="workedia-select" disabled><option>-- اختر --</option>${f.options.map(o => `<option>${o}</option>`).join('')}</select>`;
+        case 'date': return '<input type="date" class="workedia-input" disabled>';
+        default: return '<input type="text" class="workedia-input" disabled>';
+    }
 }
 
 function saveForm() {
     const title = document.getElementById('form-title').value;
     const description = document.getElementById('form-description').value;
+    const successMsg = document.getElementById('form-success-msg').value;
     if (!title || currentFormFields.length === 0) return alert('يرجى إدخال عنوان وإضافة حقل واحد على الأقل.');
 
     const fd = new FormData();
@@ -150,6 +192,7 @@ function saveForm() {
     fd.append('title', title);
     fd.append('description', description);
     fd.append('fields', JSON.stringify(currentFormFields));
+    fd.append('settings', JSON.stringify({ success_message: successMsg }));
     fd.append('nonce', '<?php echo wp_create_nonce("workedia_formbuilder_action"); ?>');
 
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
@@ -191,32 +234,48 @@ function workediaViewSubmissions(id, title) {
 
     fetch(ajaxurl, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
         if (res.success && res.data.length > 0) {
-            let csvData = "Time,Data\n";
-            let html = `
-                <div style="margin-bottom: 15px; text-align: left;">
-                    <button onclick="exportSubmissionsToCSV()" class="workedia-btn" style="width: auto; height: 35px; font-size: 12px; background: #27ae60;">تصدير إلى CSV</button>
-                </div>
-                <table class="workedia-table" id="subs-table">
-                <thead><tr><th>الوقت</th><th>بيانات الرد</th></tr></thead><tbody>`;
-
-            res.data.forEach(s => {
-                const data = JSON.parse(s.submission_data);
-                let dataHtml = '';
-                let csvRow = '';
-                for (let k in data) {
-                    dataHtml += `<div><strong>${k}:</strong> ${data[k]}</div>`;
-                    csvRow += `[${k}: ${data[k]}] `;
-                }
-                html += `<tr><td>${s.submitted_at}</td><td>${dataHtml}</td></tr>`;
-                csvData += `"${s.submitted_at}","${csvRow.replace(/"/g, '""')}"\n`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-            window.lastSubmissionCSV = csvData;
+            window.currentSubmissions = res.data;
+            renderSubmissions(res.data);
         } else {
             container.innerHTML = '<div style="text-align: center; padding: 50px; color: #94a3b8;">لا توجد ردود بعد.</div>';
         }
     });
+}
+
+function renderSubmissions(data) {
+    const container = document.getElementById('submissions-container');
+    let csvHeader = "Time";
+    const sampleData = data[0] ? JSON.parse(data[0].submission_data) : {};
+    for (let k in sampleData) csvHeader += `,${k}`;
+
+    let csvData = csvHeader + "\n";
+    let html = `
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <input type="text" placeholder="بحث في الردود..." class="workedia-input" style="width: 300px; height: 35px; font-size: 12px;" oninput="filterSubmissions(this.value)">
+            <button onclick="exportSubmissionsToCSV()" class="workedia-btn" style="width: auto; height: 35px; font-size: 12px; background: #27ae60;">تصدير إلى CSV</button>
+        </div>
+        <table class="workedia-table" id="subs-table">
+        <thead><tr><th>الوقت</th><th>بيانات الرد</th></tr></thead><tbody>`;
+
+    data.forEach(s => {
+        const rowData = JSON.parse(s.submission_data);
+        let dataHtml = '';
+        let csvRow = `"${s.submitted_at}"`;
+        for (let k in rowData) {
+            dataHtml += `<div><span style="color:#94a3b8; font-size:11px;">${k}:</span> <strong>${rowData[k]}</strong></div>`;
+            csvRow += `,"${rowData[k].toString().replace(/"/g, '""')}"`;
+        }
+        html += `<tr><td style="font-size:11px; color:#94a3b8; width:150px;">${s.submitted_at}</td><td>${dataHtml}</td></tr>`;
+        csvData += csvRow + "\n";
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    window.lastSubmissionCSV = csvData;
+}
+
+function filterSubmissions(val) {
+    const filtered = window.currentSubmissions.filter(s => s.submission_data.toLowerCase().includes(val.toLowerCase()));
+    renderSubmissions(filtered);
 }
 
 function exportSubmissionsToCSV() {
