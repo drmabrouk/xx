@@ -63,6 +63,12 @@ if (!class_exists('Workedia_Notebook')) {
 
         public static function share_note($note_id, $shared_user_id) {
             global $wpdb;
+            $user_id = get_current_user_id();
+
+            // Security Check: Verify requesting user owns the note
+            $owner = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM {$wpdb->prefix}workedia_notes WHERE id = %d", $note_id));
+            if ($owner != $user_id) return false;
+
             $table = $wpdb->prefix . 'workedia_note_shares';
             return $wpdb->insert($table, ['note_id' => intval($note_id), 'user_id' => intval($shared_user_id)]);
         }

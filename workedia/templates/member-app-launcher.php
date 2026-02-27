@@ -1,11 +1,14 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="member-app-launcher">
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h2 style="font-weight: 800; font-size: 2em; color: var(--workedia-dark-color);">أهلاً بك، <?php echo wp_get_current_user()->display_name; ?></h2>
-        <p style="color: #64748b; font-size: 1.1em;">اختر الخدمة التي ترغب في الوصول إليها</p>
+    <div style="text-align: center; margin-bottom: 40px;">
+        <div style="margin-bottom: 20px; display: inline-block;">
+            <?php echo get_avatar(get_current_user_id(), 100, '', '', array('style' => 'border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);')); ?>
+        </div>
+        <h2 style="font-weight: 800; font-size: 1.8em; color: var(--workedia-dark-color); margin: 0;">أهلاً بك، <?php echo wp_get_current_user()->display_name; ?></h2>
+        <p style="color: #64748b; font-size: 1em; margin-top: 5px;">اختر الخدمة التي ترغب في الوصول إليها</p>
     </div>
 
-    <div class="app-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; padding: 10px;">
+    <div class="app-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; padding: 10px; max-width: 900px; margin: 0 auto;">
         <!-- Profile App -->
         <a href="<?php echo add_query_arg('workedia_tab', 'my-profile'); ?>" class="app-card">
             <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -47,7 +50,7 @@
 <style>
 .app-card {
     background: white;
-    padding: 35px 25px;
+    padding: 25px 20px;
     border-radius: 24px;
     text-align: center;
     text-decoration: none !important;
@@ -64,26 +67,26 @@
     border-color: var(--workedia-primary-color);
 }
 .app-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 .app-icon .dashicons {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
     color: white !important;
 }
 .app-card h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-weight: 800;
     color: var(--workedia-dark-color);
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 .app-card p {
     margin: 0;
