@@ -396,6 +396,69 @@ class Workedia_Activator {
             KEY reference_id (reference_id)
         ) $charset_collate;\n";
 
+        // Invoicing Tables
+        $table_name = $wpdb->prefix . 'workedia_invoices';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            invoice_number varchar(50) NOT NULL,
+            client_name varchar(255) NOT NULL,
+            client_email varchar(100),
+            client_details text,
+            issue_date date,
+            due_date date,
+            status varchar(20) DEFAULT 'draft',
+            currency varchar(10) DEFAULT 'USD',
+            subtotal decimal(15,2) DEFAULT 0,
+            tax_total decimal(15,2) DEFAULT 0,
+            discount_total decimal(15,2) DEFAULT 0,
+            total_amount decimal(15,2) DEFAULT 0,
+            notes text,
+            public_notes text,
+            public_token varchar(100),
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            UNIQUE KEY public_token (public_token)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_invoice_items';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            invoice_id bigint(20) NOT NULL,
+            description text NOT NULL,
+            quantity decimal(10,2) DEFAULT 1,
+            unit_price decimal(15,2) DEFAULT 0,
+            tax_rate decimal(5,2) DEFAULT 0,
+            discount_amount decimal(15,2) DEFAULT 0,
+            sort_order int DEFAULT 0,
+            PRIMARY KEY  (id),
+            KEY invoice_id (invoice_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_invoice_attachments';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            invoice_id bigint(20) NOT NULL,
+            file_url text NOT NULL,
+            file_name varchar(255),
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY invoice_id (invoice_id)
+        ) $charset_collate;\n";
+
+        $table_name = $wpdb->prefix . 'workedia_invoice_logs';
+        $sql .= "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            invoice_id bigint(20) NOT NULL,
+            user_id bigint(20),
+            action varchar(50) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY invoice_id (invoice_id)
+        ) $charset_collate;\n";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
@@ -660,6 +723,11 @@ class Workedia_Activator {
                 'title' => 'عرض السيرة الذاتية',
                 'content' => '[workedia_cv_view]',
                 'shortcode' => 'workedia_cv_view'
+            ),
+            'invoice' => array(
+                'title' => 'عرض الفاتورة',
+                'content' => '[workedia_invoice_view]',
+                'shortcode' => 'workedia_invoice_view'
             )
         );
 

@@ -653,6 +653,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         <a href="<?php echo add_query_arg('workedia_tab', 'reference-manager'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-welcome-learn-more"></span> <?php echo $labels['tab_reference_manager']; ?></a>
                     </li>
 
+                    <li class="workedia-sidebar-item <?php echo $active_tab == 'invoicing' ? 'workedia-active' : ''; ?>">
+                        <a href="<?php echo add_query_arg('workedia_tab', 'invoicing'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-media-spreadsheet"></span> <?php echo $labels['tab_invoicing']; ?></a>
+                    </li>
+
                     <li class="workedia-sidebar-item <?php echo $active_tab == 'users-management' ? 'workedia-active' : ''; ?>">
                         <a href="<?php echo add_query_arg('workedia_tab', 'users-management'); ?>" class="workedia-sidebar-link"><span class="dashicons dashicons-admin-users"></span> <?php echo $labels['tab_users_management']; ?></a>
                     </li>
@@ -749,6 +753,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                 case 'reference-writer':
                     include WORKEDIA_PLUGIN_DIR . 'templates/app-reference-writer.php';
+                    break;
+
+                case 'invoicing':
+                    include WORKEDIA_PLUGIN_DIR . 'templates/app-invoicing.php';
                     break;
 
                 case 'member-profile':

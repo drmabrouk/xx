@@ -75,7 +75,7 @@ class Workedia_Public {
     public function enqueue_styles() {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_add_inline_script('jquery', 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";', 'before');
+        wp_add_inline_script('jquery', 'var ajaxurl = "' . admin_url('admin-ajax.php') . '"; var workedia_home_url = "' . home_url() . '";', 'before');
         wp_enqueue_style('dashicons');
         wp_enqueue_style('google-font-rubik', 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800;900&display=swap', array(), null);
         wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.4.1', true);
@@ -111,6 +111,7 @@ class Workedia_Public {
         add_shortcode('workedia_blog', array($this, 'shortcode_blog'));
         add_shortcode('workedia_form_view', array($this, 'shortcode_form_view'));
         add_shortcode('workedia_cv_view', array($this, 'shortcode_cv_view'));
+        add_shortcode('workedia_invoice_view', array($this, 'shortcode_invoice_view'));
 
         // Backward Compatibility Mapping
         add_shortcode('sm_login', array($this, 'shortcode_login'));
@@ -276,6 +277,12 @@ class Workedia_Public {
     public function shortcode_cv_view() {
         ob_start();
         include WORKEDIA_PLUGIN_DIR . 'templates/cv-public-view.php';
+        return ob_get_clean();
+    }
+
+    public function shortcode_invoice_view() {
+        ob_start();
+        include WORKEDIA_PLUGIN_DIR . 'public/invoice-view.php';
         return ob_get_clean();
     }
 
@@ -2230,6 +2237,74 @@ class Workedia_Public {
         check_ajax_referer('workedia_ref_manager_action', 'nonce');
         $results = Workedia_ReferenceManager::smart_search($_POST['query']);
         wp_send_json_success($results);
+    }
+
+    // Invoicing AJAX Handlers
+    public function ajax_get_invoices() {
+        if (!is_user_logged_in()) wp_die();
+        $args = [
+            'search' => $_GET['search'] ?? '',
+            'status' => $_GET['status'] ?? 'all'
+        ];
+        $invoices = Workedia_Invoicing::get_invoices(get_current_user_id(), $args);
+        include WORKEDIA_PLUGIN_DIR . 'templates/app-invoicing-list.php';
+        wp_die();
+    }
+
+    public function ajax_save_invoice() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        $id = Workedia_Invoicing::save_invoice($_POST);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to save invoice');
+    }
+
+    public function ajax_delete_invoice() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        if (Workedia_Invoicing::delete_invoice($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Failed to delete invoice');
+    }
+
+    public function ajax_duplicate_invoice() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        $id = Workedia_Invoicing::duplicate_invoice($_POST['id']);
+        if ($id) wp_send_json_success($id);
+        else wp_send_json_error('Failed to duplicate invoice');
+    }
+
+    public function ajax_get_invoice_details() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        $id = intval($_GET['id']);
+        $user_id = get_current_user_id();
+
+        $invoice = Workedia_Invoicing::get_invoice($id, $user_id);
+        if (!$invoice) wp_send_json_error('Invoice not found');
+
+        wp_send_json_success([
+            'invoice' => $invoice,
+            'items' => Workedia_Invoicing::get_invoice_items($id),
+            'attachments' => Workedia_Invoicing::get_invoice_attachments($id),
+            'logs' => Workedia_Invoicing::get_invoice_logs($id)
+        ]);
+    }
+
+    public function ajax_upload_invoice_attachment() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        $res = Workedia_Invoicing::upload_attachment($_POST['invoice_id'], 'attachment');
+        if (is_wp_error($res)) wp_send_json_error($res->get_error_message());
+        elseif ($res) wp_send_json_success();
+        else wp_send_json_error('Upload failed');
+    }
+
+    public function ajax_delete_invoice_attachment() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        check_ajax_referer('workedia_invoicing_action', 'nonce');
+        if (Workedia_Invoicing::delete_attachment($_POST['id'])) wp_send_json_success();
+        else wp_send_json_error('Delete failed');
     }
 
     public function ajax_export_research_word() {

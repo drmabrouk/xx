@@ -118,6 +118,15 @@
             <h3>مدير المراجع</h3>
             <p>تنظيم المراجع والاقتباسات العلمية</p>
         </a>
+
+        <!-- Invoicing App -->
+        <a href="<?php echo add_query_arg('workedia_tab', 'invoicing'); ?>" class="app-card" data-hint="أنشئ فواتير احترافية، تتبع المدفوعات، وأرسل مطالبات مالية لعملائك بسهولة ودقة.">
+            <div class="app-icon" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">
+                <span class="dashicons dashicons-media-spreadsheet"></span>
+            </div>
+            <h3>الفواتير والمبيعات</h3>
+            <p>إدارة الفواتير والتحصيل المالي</p>
+        </a>
     </div>
 </div>
 
