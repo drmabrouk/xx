@@ -37,7 +37,8 @@ class Workedia_Settings {
             'tab_bmi' => 'حاسبة BMI',
             'tab_documents' => 'أرشيف الوثائق',
             'tab_cv_builder' => 'منشئ السيرة الذاتية',
-            'tab_reference_manager' => 'مدير المراجع العلمية'
+            'tab_reference_manager' => 'مدير المراجع العلمية',
+            'tab_invoicing' => 'الفواتير والمبيعات'
         );
         return wp_parse_args(get_option('workedia_labels', array()), $default);
     }

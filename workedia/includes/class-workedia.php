@@ -25,6 +25,7 @@ class Workedia {
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-bmi.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-documents.php';
         require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-cvbuilder.php';
+        require_once WORKEDIA_PLUGIN_DIR . 'includes/class-workedia-invoicing.php';
         require_once WORKEDIA_PLUGIN_DIR . 'admin/class-workedia-admin.php';
         require_once WORKEDIA_PLUGIN_DIR . 'public/class-workedia-public.php';
         $this->loader = new Workedia_Loader();
@@ -100,6 +101,15 @@ class Workedia {
         $this->loader->add_action('wp_ajax_workedia_delete_cv', $plugin_public, 'ajax_delete_cv');
         $this->loader->add_action('wp_ajax_workedia_get_cv_versions', $plugin_public, 'ajax_get_cv_versions');
         $this->loader->add_action('wp_ajax_workedia_restore_cv_version', $plugin_public, 'ajax_restore_cv_version');
+
+        // Invoicing AJAX
+        $this->loader->add_action('wp_ajax_workedia_get_invoices', $plugin_public, 'ajax_get_invoices');
+        $this->loader->add_action('wp_ajax_workedia_save_invoice', $plugin_public, 'ajax_save_invoice');
+        $this->loader->add_action('wp_ajax_workedia_delete_invoice', $plugin_public, 'ajax_delete_invoice');
+        $this->loader->add_action('wp_ajax_workedia_duplicate_invoice', $plugin_public, 'ajax_duplicate_invoice');
+        $this->loader->add_action('wp_ajax_workedia_get_invoice_details', $plugin_public, 'ajax_get_invoice_details');
+        $this->loader->add_action('wp_ajax_workedia_upload_invoice_attachment', $plugin_public, 'ajax_upload_invoice_attachment');
+        $this->loader->add_action('wp_ajax_workedia_delete_invoice_attachment', $plugin_public, 'ajax_delete_invoice_attachment');
 
         // Reference Manager AJAX
         $this->loader->add_action('wp_ajax_workedia_save_research_project', $plugin_public, 'ajax_save_research_project');

@@ -794,3 +794,47 @@
     background: var(--workedia-pastel-red) !important;
     border: 2px dashed var(--workedia-primary-color) !important;
 }
+
+/* Invoicing System Styles */
+.invoicing-app .workedia-stat-card {
+    transition: 0.3s;
+}
+.invoicing-app .workedia-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.invoice-item-row input {
+    border-color: transparent;
+    background: transparent;
+}
+.invoice-item-row:hover input {
+    border-color: var(--workedia-border-color);
+    background: #fff;
+}
+
+@media (max-width: 992px) {
+    .invoicing-app .workedia-modal-content > form > div {
+        grid-template-columns: 1fr !important;
+    }
+
+    .invoicing-app .workedia-card-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .workedia-invoice-public-view {
+        padding: 30px !important;
+    }
+
+    .workedia-invoice-public-view > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+
+    .workedia-invoice-public-view table th:nth-child(3),
+    .workedia-invoice-public-view table td:nth-child(3) {
+        display: none;
+    }
+}
